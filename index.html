@@ -65,6 +65,7 @@
     const showMessageButton = document.getElementById('show-message');
     const startCameraButton = document.getElementById('start-camera');
     const cameraMessage = document.getElementById('camera-message');
+    let stream;
 
     showMessageButton.addEventListener('click', () => {
       showMessageButton.style.display = 'none';
@@ -73,7 +74,8 @@
 
     startCameraButton.addEventListener('click', () => {
       navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-        .then(stream => {
+        .then(mediaStream => {
+          stream = mediaStream;
           video.srcObject = stream;
           video.setAttribute('playsinline', true);
           video.style.display = 'block';
@@ -83,6 +85,7 @@
             console.log(result); // Maneja el resultado del escaneo
             qrScanner.stop();
             video.style.display = 'none';
+            stream.getTracks().forEach(track => track.stop());
           });
           qrScanner.start();
         })
