@@ -67,6 +67,9 @@
     .pump {
       margin: 10px 0;
     }
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body class="light-mode">
@@ -194,7 +197,8 @@
       pumpElement.id = pumpId;
       pumpElement.className = 'pump';
       pumpElement.innerHTML = `
-        <p>Bomba ${pumpCount}</p>
+        <p class="pump-name">Bomba ${pumpCount}</p>
+        <input type="text" class="pump-name-input hidden" value="Bomba ${pumpCount}">
         <button onclick="enviarComando({ action: 'turnOn', device: '${pumpId}' })" class="button">Encender</button>
         <button onclick="enviarComando({ action: 'turnOff', device: '${pumpId}' })" class="button button-secondary">Apagar</button>
       `;
@@ -202,18 +206,55 @@
     });
 
     editPumpButton.addEventListener('click', () => {
-      // Aquí puedes implementar la lógica de edición, como eliminar bombas innecesarias
       const pumpElements = document.querySelectorAll('.pump');
       pumpElements.forEach(pumpElement => {
-        if (!pumpElement.querySelector('.delete-button')) {
-          const deleteButton = document.createElement('button');
-          deleteButton.className = 'button button-secondary delete-button';
-          deleteButton.textContent = 'Eliminar';
-          deleteButton.onclick = () => {
-            pumpContainer.removeChild(pumpElement);
-          };
-          pumpElement.appendChild(deleteButton);
+        const nameElement = pumpElement.querySelector('.pump-name');
+        const nameInput = pumpElement.querySelector('.pump-name-input');
+        const isEditing = !nameInput.classList.contains('hidden');
+        
+        if (isEditing) {
+          nameElement.textContent = nameInput.value;
+          nameInput.classList.add('hidden');
+          nameElement.classList.remove('hidden');
+          pumpElement.querySelector('.edit-button').textContent = 'Editar';
+        } else {
+          nameInput.classList.remove('hidden');
+          nameElement.classList.add('hidden');
+          pumpElement.querySelector('.edit-button').textContent = 'Guardar';
         }
+      });
+
+      const pumpElementsWithoutButtons = Array.from(pumpElements).filter(pumpElement => !pumpElement.querySelector('.delete-button'));
+      pumpElementsWithoutButtons.forEach(pumpElement => {
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'button button-secondary delete-button';
+        deleteButton.textContent = 'Eliminar';
+        deleteButton.onclick = () => {
+          pumpContainer.removeChild(pumpElement);
+        };
+
+        const editButton = document.createElement('button');
+        editButton.className = 'button button-secondary edit-button';
+        editButton.textContent = 'Editar';
+        editButton.onclick = () => {
+          const nameElement = pumpElement.querySelector('.pump-name');
+          const nameInput = pumpElement.querySelector('.pump-name-input');
+          const isEditing = !nameInput.classList.contains('hidden');
+
+          if (isEditing) {
+            nameElement.textContent = nameInput.value;
+            nameInput.classList.add('hidden');
+            nameElement.classList.remove('hidden');
+            editButton.textContent = 'Editar';
+          } else {
+            nameInput.classList.remove('hidden');
+            nameElement.classList.add('hidden');
+            editButton.textContent = 'Guardar';
+          }
+        };
+
+        pumpElement.appendChild(editButton);
+        pumpElement.appendChild(deleteButton);
       });
     });
   </script>
