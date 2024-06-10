@@ -61,6 +61,12 @@
       background-color: #444;
       box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
     }
+    .pump-container {
+      margin-top: 20px;
+    }
+    .pump {
+      margin: 10px 0;
+    }
   </style>
 </head>
 <body class="light-mode">
@@ -77,8 +83,12 @@
   <video id="video" width="300" height="200"></video>
 
   <div class="control-container">
-    <button onclick="enviarComando({ action: 'turnOn', device: 'pump1' })" class="button">Encender Bomba 1</button>
-    <button onclick="enviarComando({ action: 'turnOff', device: 'pump1' })" class="button button-secondary">Apagar Bomba 1</button>
+    <button id="add-pump" class="button">Añadir Bomba</button>
+    <button id="edit-pump" class="button button-secondary">Editar Bombas</button>
+  </div>
+
+  <div class="pump-container" id="pump-container">
+    <!-- Aquí se añadirán dinámicamente las bombas -->
   </div>
 
   <script src="https://unpkg.com/qr-scanner/qr-scanner.min.js"></script>
@@ -170,8 +180,41 @@
       const data = JSON.parse(event.data);
       console.log('Mensaje del servidor:', data);
     });
+
+    // Gestión de Bombas
+    const addPumpButton = document.getElementById('add-pump');
+    const editPumpButton = document.getElementById('edit-pump');
+    const pumpContainer = document.getElementById('pump-container');
+
+    addPumpButton.addEventListener('click', () => {
+      const pumpId = `pump-${Date.now()}`;
+      const pumpElement = document.createElement('div');
+      pumpElement.id = pumpId;
+      pumpElement.className = 'pump';
+      pumpElement.innerHTML = `
+        <p>Bomba: ${pumpId}</p>
+        <button onclick="enviarComando({ action: 'turnOn', device: '${pumpId}' })" class="button">Encender</button>
+        <button onclick="enviarComando({ action: 'turnOff', device: '${pumpId}' })" class="button button-secondary">Apagar</button>
+      `;
+      pumpContainer.appendChild(pumpElement);
+    });
+
+    editPumpButton.addEventListener('click', () => {
+      // Aquí puedes implementar la lógica de edición, como eliminar bombas innecesarias
+      const pumpElements = document.querySelectorAll('.pump');
+      pumpElements.forEach(pumpElement => {
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'button button-secondary';
+        deleteButton.textContent = 'Eliminar';
+        deleteButton.onclick = () => {
+          pumpContainer.removeChild(pumpElement);
+        };
+        pumpElement.appendChild(deleteButton);
+      });
+    });
   </script>
 </body>
 </html>
+
 
 
