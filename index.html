@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mi PWA</title>
   <link rel="manifest" href="/AquaMaster/manifest.json">
-<link rel="icon" type="image/png" sizes="192x192" href="/AquaMaster/icon-192x192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="/AquaMaster/icon-512x512.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/AquaMaster/icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/AquaMaster/icon-512x512.png">
   <style>
     /* Añade aquí tus estilos CSS */
     body {
@@ -26,19 +26,82 @@
   <h1>Bienvenido a Mi PWA</h1>
   <p>Este es un ejemplo de una PWA alojada en GitHub Pages.</p>
 
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/AquaMaster/service-worker.js')
-        .then(registration => {
-          console.log('Service Worker registrado con éxito:', registration);
-        })
-        .catch(error => {
-          console.error('Error al registrar el Service Worker:', error);
-        });
-    });
-  }
-</script>
+  <video id="video" width="300" height="200" style="border: 1px solid black"></video>
 
+  <form id="login-form">
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button type="submit">Login</button>
+  </form>
+
+  <div id="control-panel">
+    <button onclick="enviarComando({ action: 'turnOn', device: 'pump1' })">Encender Bomba 1</button>
+    <button onclick="enviarComando({ action: 'turnOff', device: 'pump1' })">Apagar Bomba 1</button>
+  </div>
+
+  <script src="https://unpkg.com/qr-scanner/qr-scanner.min.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/AquaMaster/service-worker.js')
+          .then(registration => {
+            console.log('Service Worker registrado con éxito:', registration);
+          })
+          .catch(error => {
+            console.error('Error al registrar el Service Worker:', error);
+          });
+      });
+    }
+
+    const video = document.getElementById('video');
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      .then(stream => {
+        video.srcObject = stream;
+        video.setAttribute('playsinline', true);
+        video.play();
+      });
+
+    video.addEventListener('play', () => {
+      const qrScanner = new QrScanner(video, result => {
+        console.log(result); // Maneja el resultado del escaneo
+        qrScanner.stop();
+      });
+      qrScanner.start();
+    });
+
+    const socket = new WebSocket('wss://tu-servidor.com/socket');
+
+    socket.addEventListener('open', () => {
+      console.log('Conectado al servidor');
+    });
+
+    function enviarComando(comando) {
+      socket.send(JSON.stringify(comando));
+    }
+
+    socket.addEventListener('message', event => {
+      const data = JSON.parse(event.data);
+      console.log('Mensaje del servidor:', data);
+    });
+
+    document.getElementById('login-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      const response = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      if (response.ok) {
+        console.log('Login successful');
+      } else {
+        console.log('Login failed');
+      }
+    });
+  </script>
 </body>
 </html>
