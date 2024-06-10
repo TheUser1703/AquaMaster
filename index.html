@@ -185,14 +185,16 @@
     const addPumpButton = document.getElementById('add-pump');
     const editPumpButton = document.getElementById('edit-pump');
     const pumpContainer = document.getElementById('pump-container');
+    let pumpCount = 0;
 
     addPumpButton.addEventListener('click', () => {
-      const pumpId = `pump-${Date.now()}`;
+      pumpCount++;
+      const pumpId = `pump-${pumpCount}`;
       const pumpElement = document.createElement('div');
       pumpElement.id = pumpId;
       pumpElement.className = 'pump';
       pumpElement.innerHTML = `
-        <p>Bomba: ${pumpId}</p>
+        <p>Bomba ${pumpCount}</p>
         <button onclick="enviarComando({ action: 'turnOn', device: '${pumpId}' })" class="button">Encender</button>
         <button onclick="enviarComando({ action: 'turnOff', device: '${pumpId}' })" class="button button-secondary">Apagar</button>
       `;
@@ -203,15 +205,32 @@
       // Aquí puedes implementar la lógica de edición, como eliminar bombas innecesarias
       const pumpElements = document.querySelectorAll('.pump');
       pumpElements.forEach(pumpElement => {
-        const deleteButton = document.createElement('button');
-        deleteButton.className = 'button button-secondary';
-        deleteButton.textContent = 'Eliminar';
-        deleteButton.onclick = () => {
-          pumpContainer.removeChild(pumpElement);
-        };
-        pumpElement.appendChild(deleteButton);
+        if (!pumpElement.querySelector('.delete-button')) {
+          const deleteButton = document.createElement('button');
+          deleteButton.className = 'button button-secondary delete-button';
+          deleteButton.textContent = 'Eliminar';
+          deleteButton.onclick = () => {
+            pumpContainer.removeChild(pumpElement);
+            pumpCount--;
+            renumberPumps();
+          };
+          pumpElement.appendChild(deleteButton);
+        }
       });
     });
+
+    function renumberPumps() {
+      const pumpElements = document.querySelectorAll('.pump');
+      pumpElements.forEach((pumpElement, index) => {
+        const pumpId = `pump-${index + 1}`;
+        pumpElement.id = pumpId;
+        pumpElement.querySelector('p').textContent = `Bomba ${index + 1}`;
+        const turnOnButton = pumpElement.querySelector('.button');
+        turnOnButton.setAttribute('onclick', `enviarComando({ action: 'turnOn', device: '${pumpId}' })`);
+        const turnOffButton = pumpElement.querySelector('.button-secondary');
+        turnOffButton.setAttribute('onclick', `enviarComando({ action: 'turnOff', device: '${pumpId}' })`);
+      });
+    }
   </script>
 </body>
 </html>
