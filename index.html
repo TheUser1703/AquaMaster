@@ -73,6 +73,7 @@
     });
 
     startCameraButton.addEventListener('click', () => {
+      console.log('QrScanner:', QrScanner); // Verifica que QrScanner esté definido
       navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
         .then(mediaStream => {
           stream = mediaStream;
@@ -134,4 +135,5 @@
   </script>
 </body>
 </html>
+
 
