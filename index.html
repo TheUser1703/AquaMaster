@@ -50,35 +50,16 @@
     .button-secondary {
       background-color: #6c757d;
     }
-    .form-container, .control-container {
+    .control-container {
       margin-top: 20px;
       padding: 20px;
       background-color: white;
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-    .form-container input, .form-container button {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    .form-container button {
-      background-color: #28a745;
-      color: white;
-      font-size: 16px;
-      border: none;
-    }
-    .dark-mode .form-container, .dark-mode .control-container {
+    .dark-mode .control-container {
       background-color: #444;
       box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
-    }
-    .dark-mode .form-container input, .dark-mode .form-container button {
-      border: 1px solid #666;
-    }
-    .dark-mode .form-container button {
-      background-color: #007bff;
     }
   </style>
 </head>
@@ -94,14 +75,6 @@
     <button id="start-camera" class="button">Permitir acceso a la cámara</button>
   </div>
   <video id="video" width="300" height="200"></video>
-
-  <div class="form-container">
-    <form id="login-form">
-      <input type="text" id="username" placeholder="Username">
-      <input type="password" id="password" placeholder="Password">
-      <button type="submit">Login</button>
-    </form>
-  </div>
 
   <div class="control-container">
     <button onclick="enviarComando({ action: 'turnOn', device: 'pump1' })" class="button">Encender Bomba 1</button>
@@ -197,25 +170,8 @@
       const data = JSON.parse(event.data);
       console.log('Mensaje del servidor:', data);
     });
-
-    document.getElementById('login-form').addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-
-      const response = await fetch('/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-
-      if (response.ok) {
-        console.log('Login successful');
-      } else {
-        console.log('Login failed');
-      }
-    });
   </script>
 </body>
 </html>
+
 
