@@ -82,12 +82,17 @@
           video.play();
 
           const qrScanner = new QrScanner(video, result => {
-            console.log(result); // Maneja el resultado del escaneo
+            console.log('QR code detected:', result); // Maneja el resultado del escaneo
             qrScanner.stop();
             video.style.display = 'none';
             stream.getTracks().forEach(track => track.stop());
+          }, {
+            onDecodeError: error => {
+              console.error('Error decoding QR code:', error);
+            }
           });
           qrScanner.start();
+          console.log('QR scanner started');
         })
         .catch(err => {
           console.error('Error al acceder a la cámara:', err);
