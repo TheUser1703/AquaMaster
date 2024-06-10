@@ -29,7 +29,11 @@
   <h1>Bienvenido a Mi PWA</h1>
   <p>Este es un ejemplo de una PWA alojada en GitHub Pages.</p>
 
-  <button id="start-camera">Escanear Código QR</button>
+  <button id="show-message">Escanear Código QR</button>
+  <div id="camera-message" style="display: none;">
+    <p>Esta aplicación necesita acceso a tu cámara para escanear códigos QR.</p>
+    <button id="start-camera">Permitir acceso a la cámara</button>
+  </div>
   <video id="video" width="300" height="200"></video>
 
   <form id="login-form">
@@ -58,7 +62,14 @@
     }
 
     const video = document.getElementById('video');
+    const showMessageButton = document.getElementById('show-message');
     const startCameraButton = document.getElementById('start-camera');
+    const cameraMessage = document.getElementById('camera-message');
+
+    showMessageButton.addEventListener('click', () => {
+      showMessageButton.style.display = 'none';
+      cameraMessage.style.display = 'block';
+    });
 
     startCameraButton.addEventListener('click', () => {
       navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
@@ -115,3 +126,4 @@
   </script>
 </body>
 </html>
+
