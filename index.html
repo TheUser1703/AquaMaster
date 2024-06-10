@@ -7,11 +7,14 @@
   <link rel="manifest" href="/AquaMaster/manifest.json">
   <link rel="icon" type="image/png" sizes="192x192" href="/AquaMaster/icon-192x192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="/AquaMaster/icon-512x512.png">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Roboto', sans-serif;
       text-align: center;
       padding: 50px;
+      background-color: #f0f4f8;
+      color: #333;
     }
     h1 {
       color: #333;
@@ -22,6 +25,43 @@
     #video {
       display: none;
       border: 1px solid black;
+      margin-top: 20px;
+    }
+    .button {
+      background-color: #007bff;
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+    .button-secondary {
+      background-color: #6c757d;
+    }
+    .form-container, .control-container {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .form-container input, .form-container button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .form-container button {
+      background-color: #28a745;
+      color: white;
+      font-size: 16px;
+      border: none;
     }
   </style>
 </head>
@@ -29,22 +69,24 @@
   <h1>Bienvenido a Mi PWA</h1>
   <p>Este es un ejemplo de una PWA alojada en GitHub Pages.</p>
 
-  <button id="show-message">Escanear Código QR</button>
+  <button id="show-message" class="button">Escanear Código QR</button>
   <div id="camera-message" style="display: none;">
     <p>Esta aplicación necesita acceso a tu cámara para escanear códigos QR.</p>
-    <button id="start-camera">Permitir acceso a la cámara</button>
+    <button id="start-camera" class="button">Permitir acceso a la cámara</button>
   </div>
   <video id="video" width="300" height="200"></video>
 
-  <form id="login-form">
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-    <button type="submit">Login</button>
-  </form>
+  <div class="form-container">
+    <form id="login-form">
+      <input type="text" id="username" placeholder="Username">
+      <input type="password" id="password" placeholder="Password">
+      <button type="submit">Login</button>
+    </form>
+  </div>
 
-  <div id="control-panel">
-    <button onclick="enviarComando({ action: 'turnOn', device: 'pump1' })">Encender Bomba 1</button>
-    <button onclick="enviarComando({ action: 'turnOff', device: 'pump1' })">Apagar Bomba 1</button>
+  <div class="control-container">
+    <button onclick="enviarComando({ action: 'turnOn', device: 'pump1' })" class="button">Encender Bomba 1</button>
+    <button onclick="enviarComando({ action: 'turnOff', device: 'pump1' })" class="button button-secondary">Apagar Bomba 1</button>
   </div>
 
   <script src="https://unpkg.com/qr-scanner/qr-scanner.min.js"></script>
@@ -100,7 +142,7 @@
         });
     });
 
-    const socket = new WebSocket('wss://tu-servidor.com/socket');
+    const socket = new WebSocket('ws://localhost:8080'); // Actualiza con la URL de tu servidor WebSocket
 
     socket.addEventListener('open', () => {
       console.log('Conectado al servidor');
