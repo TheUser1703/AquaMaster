@@ -1,11 +1,11 @@
-const CACHE_NAME = 'mi-pwa-cache-v1';
+const CACHE_NAME = 'aquamaster-cache-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/styles.css',  // Incluye tus archivos CSS
-  '/app.js',      // Incluye tus archivos JavaScript
-  '/icon-192x192.png',
-  '/icon-512x512.png'
+  '/AquaMaster/',
+  '/AquaMaster/index.html',
+  '/AquaMaster/styles.css',
+  '/AquaMaster/app.js',
+  '/AquaMaster/icon-192x192.png',
+  '/AquaMaster/icon-512x512.png'
 ];
 
 self.addEventListener('install', event => {
