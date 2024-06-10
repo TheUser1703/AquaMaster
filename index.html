@@ -211,29 +211,15 @@
           deleteButton.textContent = 'Eliminar';
           deleteButton.onclick = () => {
             pumpContainer.removeChild(pumpElement);
-            pumpCount--;
-            renumberPumps();
           };
           pumpElement.appendChild(deleteButton);
         }
       });
     });
-
-    function renumberPumps() {
-      const pumpElements = document.querySelectorAll('.pump');
-      pumpElements.forEach((pumpElement, index) => {
-        const pumpId = `pump-${index + 1}`;
-        pumpElement.id = pumpId;
-        pumpElement.querySelector('p').textContent = `Bomba ${index + 1}`;
-        const turnOnButton = pumpElement.querySelector('.button');
-        turnOnButton.setAttribute('onclick', `enviarComando({ action: 'turnOn', device: '${pumpId}' })`);
-        const turnOffButton = pumpElement.querySelector('.button-secondary');
-        turnOffButton.setAttribute('onclick', `enviarComando({ action: 'turnOff', device: '${pumpId}' })`);
-      });
-    }
   </script>
 </body>
 </html>
+
 
 
 
