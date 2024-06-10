@@ -13,11 +13,18 @@
       font-family: 'Roboto', sans-serif;
       text-align: center;
       padding: 50px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .light-mode {
       background-color: #f0f4f8;
       color: #333;
     }
+    .dark-mode {
+      background-color: #333;
+      color: #f0f4f8;
+    }
     h1 {
-      color: #333;
+      color: inherit;
     }
     p {
       font-size: 18px;
@@ -63,11 +70,23 @@
       font-size: 16px;
       border: none;
     }
+    .dark-mode .form-container, .dark-mode .control-container {
+      background-color: #444;
+      box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+    }
+    .dark-mode .form-container input, .dark-mode .form-container button {
+      border: 1px solid #666;
+    }
+    .dark-mode .form-container button {
+      background-color: #007bff;
+    }
   </style>
 </head>
-<body>
+<body class="light-mode">
   <h1>Bienvenido a Mi PWA</h1>
   <p>Este es un ejemplo de una PWA alojada en GitHub Pages.</p>
+
+  <button id="toggle-theme" class="button">Cambiar a Modo Oscuro</button>
 
   <button id="show-message" class="button">Escanear Código QR</button>
   <div id="camera-message" style="display: none;">
@@ -102,6 +121,28 @@
           });
       });
     }
+
+    // Modo Oscuro y Claro
+    const toggleThemeButton = document.getElementById('toggle-theme');
+    const body = document.body;
+    const currentTheme = localStorage.getItem('theme') || 'light';
+
+    if (currentTheme === 'dark') {
+      body.classList.replace('light-mode', 'dark-mode');
+      toggleThemeButton.textContent = 'Cambiar a Modo Claro';
+    }
+
+    toggleThemeButton.addEventListener('click', () => {
+      if (body.classList.contains('light-mode')) {
+        body.classList.replace('light-mode', 'dark-mode');
+        toggleThemeButton.textContent = 'Cambiar a Modo Claro';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        body.classList.replace('dark-mode', 'light-mode');
+        toggleThemeButton.textContent = 'Cambiar a Modo Oscuro';
+        localStorage.setItem('theme', 'light');
+      }
+    });
 
     const video = document.getElementById('video');
     const showMessageButton = document.getElementById('show-message');
