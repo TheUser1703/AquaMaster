@@ -169,7 +169,42 @@
   <script src="https://unpkg.com/qr-scanner/qr-scanner.min.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
+      window.addEventListener('load', () => {window.addEventListener('load', () => {
+  const endTime = localStorage.getItem('endTime');
+  if (endTime) {
+    const remainingTime = endTime - Date.now();
+    if (remainingTime > 0) {
+      const timerStatus = localStorage.getItem('timerStatus');
+      timerStatusElement.textContent = timerStatus;
+      timer = setInterval(() => {
+        const remainingTime = endTime - Date.now();
+        if (remainingTime <= 0) {
+          clearInterval(timer);
+          document.querySelectorAll('.switch input').forEach(switchInput => {
+            switchInput.checked = !switchInput.checked;
+            enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: switchInput.closest('.pump').id });
+          });
+          savePumpsToLocalStorage();
+          activeTimerElement.classList.add('hidden');
+          cancelTimerButton.classList.add('hidden');
+          localStorage.removeItem('endTime');
+          localStorage.removeItem('timerStatus');
+        } else {
+          const hours = Math.floor(remainingTime / 3600000);
+          const minutes = Math.floor((remainingTime % 3600000) / 60000);
+          const seconds = Math.floor((remainingTime % 60000) / 1000);
+          timerCountdownElement.textContent = `${hours}h ${minutes}m ${seconds}s`;
+        }
+      }, 1000);
+
+      activeTimerElement.classList.remove('hidden');
+      cancelTimerButton.classList.remove('hidden');
+    } else {
+      localStorage.removeItem('endTime');
+      localStorage.removeItem('timerStatus');
+    }
+  }
+});
         navigator.serviceWorker.register('/AquaMaster/service-worker.js')
           .then(registration => {
             console.log('Service Worker registrado con éxito:', registration);
@@ -342,6 +377,49 @@
     });
 
     setTimerButton.addEventListener('click', () => {
+  const [hours, minutes] = alarmTime.value.split(':').map(Number);
+  const now = new Date();
+  const alarm = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+
+  if (alarm.getTime() < now.getTime()) {
+    alarm.setDate(alarm.getDate() + 1); // Si la hora de alarma ya pasó hoy, establecer para mañana
+  }
+
+  const totalTime = alarm.getTime() - now.getTime();
+
+  clearInterval(timer);
+  const endTime = Date.now() + totalTime;
+
+  localStorage.setItem('endTime', endTime);
+  localStorage.setItem('timerStatus', Array.from(document.querySelectorAll('.switch input')).every(switchInput => !switchInput.checked) ? 'Encendido' : 'Apagado');
+
+  const allPumpsOff = Array.from(document.querySelectorAll('.switch input')).every(switchInput => !switchInput.checked);
+  timerStatusElement.textContent = allPumpsOff ? 'Encendido' : 'Apagado';
+
+  timer = setInterval(() => {
+    const remainingTime = endTime - Date.now();
+    if (remainingTime <= 0) {
+      clearInterval(timer);
+      document.querySelectorAll('.switch input').forEach(switchInput => {
+        switchInput.checked = !switchInput.checked;
+        enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: switchInput.closest('.pump').id });
+      });
+      savePumpsToLocalStorage();
+      activeTimerElement.classList.add('hidden');
+      cancelTimerButton.classList.add('hidden');
+      localStorage.removeItem('endTime');
+      localStorage.removeItem('timerStatus');
+    } else {
+      const hours = Math.floor(remainingTime / 3600000);
+      const minutes = Math.floor((remainingTime % 3600000) / 60000);
+      const seconds = Math.floor((remainingTime % 60000) / 1000);
+      timerCountdownElement.textContent = `${hours}h ${minutes}m ${seconds}s`;
+    }
+  }, 1000);
+
+  activeTimerElement.classList.remove('hidden');
+  cancelTimerButton.classList.remove('hidden');
+});
       const [hours, minutes] = alarmTime.value.split(':').map(Number);
       const now = new Date();
       const alarm = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
@@ -382,6 +460,12 @@
     });
 
     cancelTimerButton.addEventListener('click', () => {
+  clearInterval(timer);
+  activeTimerElement.classList.add('hidden');
+  cancelTimerButton.classList.add('hidden');
+  localStorage.removeItem('endTime');
+  localStorage.removeItem('timerStatus');
+});
       clearInterval(timer);
       activeTimerElement.classList.add('hidden');
       cancelTimerButton.classList.add('hidden');
@@ -455,9 +539,6 @@
   </script>
 </body>
 </html>
-
-
-
 
 
 
