@@ -183,6 +183,7 @@
     const editPumpButton = document.getElementById('edit-pump');
     const pumpContainer = document.getElementById('pump-container');
     let pumpCount = localStorage.getItem('pumpCount') ? parseInt(localStorage.getItem('pumpCount')) : 0;
+    let pumpIdCounter = localStorage.getItem('pumpIdCounter') ? parseInt(localStorage.getItem('pumpIdCounter')) : 0;
     let editingMode = false;
 
     function savePumpsToLocalStorage() {
@@ -194,6 +195,7 @@
       });
       localStorage.setItem('pumps', JSON.stringify(pumps));
       localStorage.setItem('pumpCount', pumpCount);
+      localStorage.setItem('pumpIdCounter', pumpIdCounter);
     }
 
     function loadPumpsFromLocalStorage() {
@@ -219,8 +221,9 @@
     loadPumpsFromLocalStorage();
 
     addPumpButton.addEventListener('click', () => {
+      pumpIdCounter++;
       pumpCount++;
-      const pumpId = `pump-${pumpCount}`;
+      const pumpId = `pump-${pumpIdCounter}`;
       const pumpElement = document.createElement('div');
       pumpElement.id = pumpId;
       pumpElement.className = 'pump';
@@ -263,6 +266,7 @@
 
         deleteButton.onclick = () => {
           pumpContainer.removeChild(pumpElement);
+          pumpCount--;
           savePumpsToLocalStorage();
         };
 
@@ -292,6 +296,7 @@
   </script>
 </body>
 </html>
+
 
 
 
