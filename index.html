@@ -147,7 +147,7 @@
         .then(mediaStream => {
           stream = mediaStream;
           video.srcObject = stream;
-          video.setAttribute('playsinline', true);
+          video.setAttribute('playsinline', true); // necesario para iOS
           video.style.display = 'block';
           video.play();
 
@@ -290,6 +290,7 @@
   </script>
 </body>
 </html>
+
 
 
 
