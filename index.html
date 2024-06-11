@@ -255,9 +255,11 @@
         if (editingMode) {
           deleteButton.classList.remove('hidden');
           editButton.classList.remove('hidden');
+          editPumpButton.textContent = 'Listo';
         } else {
           deleteButton.classList.add('hidden');
           editButton.classList.add('hidden');
+          editPumpButton.textContent = 'Editar Bombas';
           if (!nameInput.classList.contains('hidden')) {
             nameElement.textContent = nameInput.value;
             nameInput.classList.add('hidden');
@@ -288,6 +290,7 @@
   </script>
 </body>
 </html>
+
 
 
 
