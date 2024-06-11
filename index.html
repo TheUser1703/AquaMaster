@@ -189,6 +189,7 @@
     const editPumpButton = document.getElementById('edit-pump');
     const pumpContainer = document.getElementById('pump-container');
     let pumpCount = 0;
+    let editingMode = false;
 
     addPumpButton.addEventListener('click', () => {
       pumpCount++;
@@ -201,60 +202,51 @@
         <input type="text" class="pump-name-input hidden" value="Bomba ${pumpCount}">
         <button onclick="enviarComando({ action: 'turnOn', device: '${pumpId}' })" class="button">Encender</button>
         <button onclick="enviarComando({ action: 'turnOff', device: '${pumpId}' })" class="button button-secondary">Apagar</button>
+        <button class="button button-secondary delete-button hidden">Eliminar</button>
+        <button class="button button-secondary edit-button hidden">Editar</button>
       `;
       pumpContainer.appendChild(pumpElement);
     });
 
     editPumpButton.addEventListener('click', () => {
       const pumpElements = document.querySelectorAll('.pump');
+      editingMode = !editingMode;
+
       pumpElements.forEach(pumpElement => {
+        const deleteButton = pumpElement.querySelector('.delete-button');
+        const editButton = pumpElement.querySelector('.edit-button');
         const nameElement = pumpElement.querySelector('.pump-name');
         const nameInput = pumpElement.querySelector('.pump-name-input');
-        const isEditing = !nameInput.classList.contains('hidden');
-        
-        if (isEditing) {
-          nameElement.textContent = nameInput.value;
-          nameInput.classList.add('hidden');
-          nameElement.classList.remove('hidden');
-          pumpElement.querySelector('.edit-button').textContent = 'Editar';
-        } else {
-          nameInput.classList.remove('hidden');
-          nameElement.classList.add('hidden');
-          pumpElement.querySelector('.edit-button').textContent = 'Guardar';
-        }
-      });
 
-      const pumpElementsWithoutButtons = Array.from(pumpElements).filter(pumpElement => !pumpElement.querySelector('.delete-button'));
-      pumpElementsWithoutButtons.forEach(pumpElement => {
-        const deleteButton = document.createElement('button');
-        deleteButton.className = 'button button-secondary delete-button';
-        deleteButton.textContent = 'Eliminar';
+        if (editingMode) {
+          deleteButton.classList.remove('hidden');
+          editButton.classList.remove('hidden');
+        } else {
+          deleteButton.classList.add('hidden');
+          editButton.classList.add('hidden');
+          if (!nameInput.classList.contains('hidden')) {
+            nameElement.textContent = nameInput.value;
+            nameInput.classList.add('hidden');
+            nameElement.classList.remove('hidden');
+          }
+        }
+
         deleteButton.onclick = () => {
           pumpContainer.removeChild(pumpElement);
         };
 
-        const editButton = document.createElement('button');
-        editButton.className = 'button button-secondary edit-button';
-        editButton.textContent = 'Editar';
         editButton.onclick = () => {
-          const nameElement = pumpElement.querySelector('.pump-name');
-          const nameInput = pumpElement.querySelector('.pump-name-input');
-          const isEditing = !nameInput.classList.contains('hidden');
-
-          if (isEditing) {
+          if (nameInput.classList.contains('hidden')) {
+            nameInput.classList.remove('hidden');
+            nameElement.classList.add('hidden');
+            editButton.textContent = 'Guardar';
+          } else {
             nameElement.textContent = nameInput.value;
             nameInput.classList.add('hidden');
             nameElement.classList.remove('hidden');
             editButton.textContent = 'Editar';
-          } else {
-            nameInput.classList.remove('hidden');
-            nameElement.classList.add('hidden');
-            editButton.textContent = 'Guardar';
           }
         };
-
-        pumpElement.appendChild(editButton);
-        pumpElement.appendChild(deleteButton);
       });
     });
   </script>
