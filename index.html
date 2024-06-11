@@ -134,7 +134,7 @@
     const showMessageButton = document.getElementById('show-message');
     const startCameraButton = document.getElementById('start-camera');
     const cameraMessage = document.getElementById('camera-message');
-    let stream;
+    let qrScanner;
 
     showMessageButton.addEventListener('click', () => {
       showMessageButton.style.display = 'none';
@@ -142,24 +142,18 @@
     });
 
     startCameraButton.addEventListener('click', () => {
-      console.log('QrScanner:', QrScanner); // Verifica que QrScanner esté definido
       navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
         .then(mediaStream => {
-          stream = mediaStream;
-          video.srcObject = stream;
+          video.srcObject = mediaStream;
           video.setAttribute('playsinline', true); // necesario para iOS
           video.style.display = 'block';
           video.play();
 
-          const qrScanner = new QrScanner(video, result => {
+          qrScanner = new QrScanner(video, result => {
             console.log('QR code detected:', result); // Maneja el resultado del escaneo
             qrScanner.stop();
             video.style.display = 'none';
-            stream.getTracks().forEach(track => track.stop());
-          }, {
-            onDecodeError: error => {
-              console.error('Error decoding QR code:', error);
-            }
+            mediaStream.getTracks().forEach(track => track.stop());
           });
           qrScanner.start();
           console.log('QR scanner started');
@@ -290,6 +284,7 @@
   </script>
 </body>
 </html>
+
 
 
 
