@@ -79,6 +79,45 @@
     .hidden {
       display: none;
     }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #007bff;
+    }
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
   </style>
 </head>
 <body class="light-mode">
@@ -200,7 +239,8 @@
       document.querySelectorAll('.pump').forEach(pumpElement => {
         const pumpId = pumpElement.id;
         const pumpName = pumpElement.querySelector('.pump-name').textContent;
-        pumps.push({ id: pumpId, name: pumpName });
+        const pumpStatus = pumpElement.querySelector('.switch input').checked;
+        pumps.push({ id: pumpId, name: pumpName, status: pumpStatus });
       });
       localStorage.setItem('pumps', JSON.stringify(pumps));
       localStorage.setItem('pumpCount', pumpCount);
@@ -218,12 +258,20 @@
           pumpElement.innerHTML = `
             <p class="pump-name">${pump.name}</p>
             <input type="text" class="pump-name-input hidden" value="${pump.name}">
-            <button onclick="enviarComando({ action: 'turnOn', device: '${pump.id}' })" class="button">Encender</button>
-            <button onclick="enviarComando({ action: 'turnOff', device: '${pump.id}' })" class="button button-secondary">Apagar</button>
+            <label class="switch">
+              <input type="checkbox" ${pump.status ? 'checked' : ''}>
+              <span class="slider"></span>
+            </label>
             <button class="button button-secondary delete-button hidden">Eliminar</button>
             <button class="button button-secondary edit-button hidden">Editar</button>
           `;
           pumpContainer.appendChild(pumpElement);
+
+          const switchInput = pumpElement.querySelector('.switch input');
+          switchInput.addEventListener('change', () => {
+            enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: pump.id });
+            savePumpsToLocalStorage();
+          });
         });
       }
     }
@@ -241,12 +289,21 @@
       pumpElement.innerHTML = `
         <p class="pump-name">Bomba ${pumpNameCounter}</p>
         <input type="text" class="pump-name-input hidden" value="Bomba ${pumpNameCounter}">
-        <button onclick="enviarComando({ action: 'turnOn', device: '${pumpId}' })" class="button">Encender</button>
-        <button onclick="enviarComando({ action: 'turnOff', device: '${pumpId}' })" class="button button-secondary">Apagar</button>
+        <label class="switch">
+          <input type="checkbox">
+          <span class="slider"></span>
+        </label>
         <button class="button button-secondary delete-button hidden">Eliminar</button>
         <button class="button button-secondary edit-button hidden">Editar</button>
       `;
       pumpContainer.appendChild(pumpElement);
+
+      const switchInput = pumpElement.querySelector('.switch input');
+      switchInput.addEventListener('change', () => {
+        enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: pumpId });
+        savePumpsToLocalStorage();
+      });
+
       savePumpsToLocalStorage();
     });
 
@@ -310,7 +367,6 @@
   </script>
 </body>
 </html>
-
 
 
 
