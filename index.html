@@ -239,6 +239,7 @@
     editPumpButton.addEventListener('click', () => {
       const pumpElements = document.querySelectorAll('.pump');
       editingMode = !editingMode;
+      updateEditModeUI();
 
       pumpElements.forEach(pumpElement => {
         const deleteButton = pumpElement.querySelector('.delete-button');
@@ -249,11 +250,10 @@
         if (editingMode) {
           deleteButton.classList.remove('hidden');
           editButton.classList.remove('hidden');
-          editPumpButton.textContent = 'Listo';
+          editButton.textContent = 'Editar';
         } else {
           deleteButton.classList.add('hidden');
           editButton.classList.add('hidden');
-          editPumpButton.textContent = 'Editar Bombas';
           if (!nameInput.classList.contains('hidden')) {
             nameElement.textContent = nameInput.value;
             nameInput.classList.add('hidden');
@@ -281,9 +281,18 @@
         };
       });
     });
+
+    function updateEditModeUI() {
+      if (editingMode) {
+        editPumpButton.textContent = 'Listo';
+      } else {
+        editPumpButton.textContent = 'Editar Bombas';
+      }
+    }
   </script>
 </body>
 </html>
+
 
 
 
