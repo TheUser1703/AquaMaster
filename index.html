@@ -120,6 +120,16 @@
     }
     .timer-container {
       margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .timer-select {
+      margin: 0 5px;
+      padding: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 16px;
     }
   </style>
 </head>
@@ -266,7 +276,12 @@
               <span class="slider"></span>
             </label>
             <div class="timer-container">
-              <input type="number" class="timer-input" placeholder="Minutos">
+              <select class="timer-select minutes-select">
+                ${[...Array(60).keys()].map(i => `<option value="${i}">${i} Minutos</option>`).join('')}
+              </select>
+              <select class="timer-select seconds-select">
+                ${[...Array(60).keys()].map(i => `<option value="${i}">${i} Segundos</option>`).join('')}
+              </select>
               <button class="button button-secondary set-timer-button">Establecer Temporizador</button>
             </div>
             <button class="button button-secondary delete-button hidden">Eliminar</button>
@@ -282,13 +297,15 @@
 
           const setTimerButton = pumpElement.querySelector('.set-timer-button');
           setTimerButton.addEventListener('click', () => {
-            const timerInput = pumpElement.querySelector('.timer-input').value;
-            if (timerInput && !isNaN(timerInput)) {
+            const minutes = parseInt(pumpElement.querySelector('.minutes-select').value);
+            const seconds = parseInt(pumpElement.querySelector('.seconds-select').value);
+            const totalTime = (minutes * 60 + seconds) * 1000; // Convertir a milisegundos
+            if (totalTime && !isNaN(totalTime)) {
               setTimeout(() => {
                 switchInput.checked = !switchInput.checked;
                 enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: pump.id });
                 savePumpsToLocalStorage();
-              }, timerInput * 60000); // Convertir minutos a milisegundos
+              }, totalTime);
             }
           });
         });
@@ -313,7 +330,12 @@
           <span class="slider"></span>
         </label>
         <div class="timer-container">
-          <input type="number" class="timer-input" placeholder="Minutos">
+          <select class="timer-select minutes-select">
+            ${[...Array(60).keys()].map(i => `<option value="${i}">${i} Minutos</option>`).join('')}
+          </select>
+          <select class="timer-select seconds-select">
+            ${[...Array(60).keys()].map(i => `<option value="${i}">${i} Segundos</option>`).join('')}
+          </select>
           <button class="button button-secondary set-timer-button">Establecer Temporizador</button>
         </div>
         <button class="button button-secondary delete-button hidden">Eliminar</button>
@@ -329,13 +351,15 @@
 
       const setTimerButton = pumpElement.querySelector('.set-timer-button');
       setTimerButton.addEventListener('click', () => {
-        const timerInput = pumpElement.querySelector('.timer-input').value;
-        if (timerInput && !isNaN(timerInput)) {
+        const minutes = parseInt(pumpElement.querySelector('.minutes-select').value);
+        const seconds = parseInt(pumpElement.querySelector('.seconds-select').value);
+        const totalTime = (minutes * 60 + seconds) * 1000; // Convertir a milisegundos
+        if (totalTime && !isNaN(totalTime)) {
           setTimeout(() => {
             switchInput.checked = !switchInput.checked;
             enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: pumpId });
             savePumpsToLocalStorage();
-          }, timerInput * 60000); // Convertir minutos a milisegundos
+          }, totalTime);
         }
       });
 
