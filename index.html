@@ -184,6 +184,7 @@
     const pumpContainer = document.getElementById('pump-container');
     let pumpCount = localStorage.getItem('pumpCount') ? parseInt(localStorage.getItem('pumpCount')) : 0;
     let pumpIdCounter = localStorage.getItem('pumpIdCounter') ? parseInt(localStorage.getItem('pumpIdCounter')) : 0;
+    let pumpNameCounter = localStorage.getItem('pumpNameCounter') ? parseInt(localStorage.getItem('pumpNameCounter')) : 0;
     let editingMode = false;
 
     function savePumpsToLocalStorage() {
@@ -196,6 +197,7 @@
       localStorage.setItem('pumps', JSON.stringify(pumps));
       localStorage.setItem('pumpCount', pumpCount);
       localStorage.setItem('pumpIdCounter', pumpIdCounter);
+      localStorage.setItem('pumpNameCounter', pumpNameCounter);
     }
 
     function loadPumpsFromLocalStorage() {
@@ -222,14 +224,15 @@
 
     addPumpButton.addEventListener('click', () => {
       pumpIdCounter++;
+      pumpNameCounter++;
       pumpCount++;
       const pumpId = `pump-${pumpIdCounter}`;
       const pumpElement = document.createElement('div');
       pumpElement.id = pumpId;
       pumpElement.className = 'pump';
       pumpElement.innerHTML = `
-        <p class="pump-name">Bomba ${pumpCount}</p>
-        <input type="text" class="pump-name-input hidden" value="Bomba ${pumpCount}">
+        <p class="pump-name">Bomba ${pumpNameCounter}</p>
+        <input type="text" class="pump-name-input hidden" value="Bomba ${pumpNameCounter}">
         <button onclick="enviarComando({ action: 'turnOn', device: '${pumpId}' })" class="button">Encender</button>
         <button onclick="enviarComando({ action: 'turnOff', device: '${pumpId}' })" class="button button-secondary">Apagar</button>
         <button class="button button-secondary delete-button hidden">Eliminar</button>
@@ -296,6 +299,7 @@
   </script>
 </body>
 </html>
+
 
 
 
