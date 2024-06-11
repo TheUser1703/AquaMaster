@@ -188,8 +188,41 @@
     const addPumpButton = document.getElementById('add-pump');
     const editPumpButton = document.getElementById('edit-pump');
     const pumpContainer = document.getElementById('pump-container');
-    let pumpCount = 0;
+    let pumpCount = localStorage.getItem('pumpCount') ? parseInt(localStorage.getItem('pumpCount')) : 0;
     let editingMode = false;
+
+    function savePumpsToLocalStorage() {
+      const pumps = [];
+      document.querySelectorAll('.pump').forEach(pumpElement => {
+        const pumpId = pumpElement.id;
+        const pumpName = pumpElement.querySelector('.pump-name').textContent;
+        pumps.push({ id: pumpId, name: pumpName });
+      });
+      localStorage.setItem('pumps', JSON.stringify(pumps));
+      localStorage.setItem('pumpCount', pumpCount);
+    }
+
+    function loadPumpsFromLocalStorage() {
+      const pumps = JSON.parse(localStorage.getItem('pumps'));
+      if (pumps) {
+        pumps.forEach(pump => {
+          const pumpElement = document.createElement('div');
+          pumpElement.id = pump.id;
+          pumpElement.className = 'pump';
+          pumpElement.innerHTML = `
+            <p class="pump-name">${pump.name}</p>
+            <input type="text" class="pump-name-input hidden" value="${pump.name}">
+            <button onclick="enviarComando({ action: 'turnOn', device: '${pump.id}' })" class="button">Encender</button>
+            <button onclick="enviarComando({ action: 'turnOff', device: '${pump.id}' })" class="button button-secondary">Apagar</button>
+            <button class="button button-secondary delete-button hidden">Eliminar</button>
+            <button class="button button-secondary edit-button hidden">Editar</button>
+          `;
+          pumpContainer.appendChild(pumpElement);
+        });
+      }
+    }
+
+    loadPumpsFromLocalStorage();
 
     addPumpButton.addEventListener('click', () => {
       pumpCount++;
@@ -206,6 +239,7 @@
         <button class="button button-secondary edit-button hidden">Editar</button>
       `;
       pumpContainer.appendChild(pumpElement);
+      savePumpsToLocalStorage();
     });
 
     editPumpButton.addEventListener('click', () => {
@@ -233,6 +267,7 @@
 
         deleteButton.onclick = () => {
           pumpContainer.removeChild(pumpElement);
+          savePumpsToLocalStorage();
         };
 
         editButton.onclick = () => {
@@ -245,6 +280,7 @@
             nameInput.classList.add('hidden');
             nameElement.classList.remove('hidden');
             editButton.textContent = 'Editar';
+            savePumpsToLocalStorage();
           }
         };
       });
@@ -252,6 +288,7 @@
   </script>
 </body>
 </html>
+
 
 
 
