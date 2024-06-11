@@ -158,8 +158,9 @@
   <div class="timer-container">
     <input type="time" id="alarm-time" class="timer-select">
     <button id="set-timer" class="button button-secondary">Programar</button>
+    <button id="cancel-timer" class="button button-secondary hidden">Cancelar</button>
   </div>
-  <div id="active-timer" class="active-timer hidden">Alarma activa para: <span id="timer-countdown"></span></div>
+  <div id="active-timer" class="active-timer hidden"><span id="timer-status"></span> programado para: <span id="timer-countdown"></span></div>
 
   <div class="pump-container" id="pump-container">
     <!-- Aquí se añadirán dinámicamente las bombas -->
@@ -254,8 +255,10 @@
     const editPumpButton = document.getElementById('edit-pump');
     const pumpContainer = document.getElementById('pump-container');
     const setTimerButton = document.getElementById('set-timer');
+    const cancelTimerButton = document.getElementById('cancel-timer');
     const alarmTime = document.getElementById('alarm-time');
     const activeTimerElement = document.getElementById('active-timer');
+    const timerStatusElement = document.getElementById('timer-status');
     const timerCountdownElement = document.getElementById('timer-countdown');
     let pumpCount = localStorage.getItem('pumpCount') ? parseInt(localStorage.getItem('pumpCount')) : 0;
     let pumpIdCounter = localStorage.getItem('pumpIdCounter') ? parseInt(localStorage.getItem('pumpIdCounter')) : 0;
@@ -352,6 +355,9 @@
       clearInterval(timer);
       const endTime = Date.now() + totalTime;
 
+      const allPumpsOff = Array.from(document.querySelectorAll('.switch input')).every(switchInput => !switchInput.checked);
+      timerStatusElement.textContent = allPumpsOff ? 'Encendido' : 'Apagado';
+
       timer = setInterval(() => {
         const remainingTime = endTime - Date.now();
         if (remainingTime <= 0) {
@@ -362,6 +368,7 @@
           });
           savePumpsToLocalStorage();
           activeTimerElement.classList.add('hidden');
+          cancelTimerButton.classList.add('hidden');
         } else {
           const hours = Math.floor(remainingTime / 3600000);
           const minutes = Math.floor((remainingTime % 3600000) / 60000);
@@ -371,6 +378,13 @@
       }, 1000);
 
       activeTimerElement.classList.remove('hidden');
+      cancelTimerButton.classList.remove('hidden');
+    });
+
+    cancelTimerButton.addEventListener('click', () => {
+      clearInterval(timer);
+      activeTimerElement.classList.add('hidden');
+      cancelTimerButton.classList.add('hidden');
     });
 
     function updateTimerButtonText() {
@@ -441,6 +455,7 @@
   </script>
 </body>
 </html>
+
 
 
 
