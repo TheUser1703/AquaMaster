@@ -6,7 +6,8 @@
   <title>AquaMaster</title>
   <link rel="manifest" href="/AquaMaster/manifest.json">
   <link rel="icon" type="image/png" sizes="192x192" href="/AquaMaster/icon-192x192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="/AquaMaster/icon-512x512.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512x512.png">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
@@ -270,6 +271,9 @@
         deleteButton.onclick = () => {
           pumpContainer.removeChild(pumpElement);
           pumpCount--;
+          if (pumpCount === 0) {
+            pumpNameCounter = 0; // Reiniciar el contador de nombres de bombas
+          }
           savePumpsToLocalStorage();
         };
 
@@ -299,6 +303,7 @@
   </script>
 </body>
 </html>
+
 
 
 
