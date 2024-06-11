@@ -156,12 +156,10 @@
   </div>
 
   <div class="timer-container">
-    <select id="timer-select" class="timer-select">
-      ${[...Array(24).keys()].map(i => `<option value="${i + 1}">${i + 1} Horas</option>`).join('')}
-    </select>
-    <button id="set-timer" class="button button-secondary">Establecer Temporizador</button>
+    <input type="time" id="alarm-time" class="timer-select">
+    <button id="set-timer" class="button button-secondary">Programar</button>
   </div>
-  <div id="active-timer" class="active-timer hidden">Temporizador activo: <span id="timer-countdown"></span></div>
+  <div id="active-timer" class="active-timer hidden">Alarma activa para: <span id="timer-countdown"></span></div>
 
   <div class="pump-container" id="pump-container">
     <!-- Aquí se añadirán dinámicamente las bombas -->
@@ -256,7 +254,7 @@
     const editPumpButton = document.getElementById('edit-pump');
     const pumpContainer = document.getElementById('pump-container');
     const setTimerButton = document.getElementById('set-timer');
-    const timerSelect = document.getElementById('timer-select');
+    const alarmTime = document.getElementById('alarm-time');
     const activeTimerElement = document.getElementById('active-timer');
     const timerCountdownElement = document.getElementById('timer-countdown');
     let pumpCount = localStorage.getItem('pumpCount') ? parseInt(localStorage.getItem('pumpCount')) : 0;
@@ -332,6 +330,7 @@
       const switchInput = pumpElement.querySelector('.switch input');
       switchInput.addEventListener('change', () => {
         enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: pumpId });
+        updateTimerButtonText();
         savePumpsToLocalStorage();
       });
 
@@ -339,34 +338,44 @@
     });
 
     setTimerButton.addEventListener('click', () => {
-      const hours = parseInt(timerSelect.value);
-      const totalTime = hours * 3600 * 1000; // Convertir horas a milisegundos
+      const [hours, minutes] = alarmTime.value.split(':').map(Number);
+      const now = new Date();
+      const alarm = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
 
-      if (totalTime && !isNaN(totalTime)) {
-        clearInterval(timer);
-        const endTime = Date.now() + totalTime;
-
-        timer = setInterval(() => {
-          const remainingTime = endTime - Date.now();
-          if (remainingTime <= 0) {
-            clearInterval(timer);
-            document.querySelectorAll('.switch input').forEach(switchInput => {
-              switchInput.checked = !switchInput.checked;
-              enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: switchInput.closest('.pump').id });
-            });
-            savePumpsToLocalStorage();
-            activeTimerElement.classList.add('hidden');
-          } else {
-            const hours = Math.floor(remainingTime / 3600000);
-            const minutes = Math.floor((remainingTime % 3600000) / 60000);
-            const seconds = Math.floor((remainingTime % 60000) / 1000);
-            timerCountdownElement.textContent = `${hours}h ${minutes}m ${seconds}s`;
-          }
-        }, 1000);
-
-        activeTimerElement.classList.remove('hidden');
+      if (alarm.getTime() < now.getTime()) {
+        alarm.setDate(alarm.getDate() + 1); // Si la hora de alarma ya pasó hoy, establecer para mañana
       }
+
+      const totalTime = alarm.getTime() - now.getTime();
+
+      clearInterval(timer);
+      const endTime = Date.now() + totalTime;
+
+      timer = setInterval(() => {
+        const remainingTime = endTime - Date.now();
+        if (remainingTime <= 0) {
+          clearInterval(timer);
+          document.querySelectorAll('.switch input').forEach(switchInput => {
+            switchInput.checked = !switchInput.checked;
+            enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: switchInput.closest('.pump').id });
+          });
+          savePumpsToLocalStorage();
+          activeTimerElement.classList.add('hidden');
+        } else {
+          const hours = Math.floor(remainingTime / 3600000);
+          const minutes = Math.floor((remainingTime % 3600000) / 60000);
+          const seconds = Math.floor((remainingTime % 60000) / 1000);
+          timerCountdownElement.textContent = `${hours}h ${minutes}m ${seconds}s`;
+        }
+      }, 1000);
+
+      activeTimerElement.classList.remove('hidden');
     });
+
+    function updateTimerButtonText() {
+      const allPumpsOff = Array.from(document.querySelectorAll('.switch input')).every(switchInput => !switchInput.checked);
+      setTimerButton.textContent = allPumpsOff ? 'Encendido programado' : 'Apagado programado';
+    }
 
     editPumpButton.addEventListener('click', () => {
       const pumpElements = document.querySelectorAll('.pump');
@@ -428,6 +437,7 @@
   </script>
 </body>
 </html>
+
 
 
 
