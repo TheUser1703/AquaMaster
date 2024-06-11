@@ -299,6 +299,7 @@
           const switchInput = pumpElement.querySelector('.switch input');
           switchInput.addEventListener('change', () => {
             enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: pump.id });
+            updateTimerButtonText();
             savePumpsToLocalStorage();
           });
         });
@@ -374,7 +375,7 @@
 
     function updateTimerButtonText() {
       const allPumpsOff = Array.from(document.querySelectorAll('.switch input')).every(switchInput => !switchInput.checked);
-      setTimerButton.textContent = allPumpsOff ? 'Encendido programado' : 'Apagado programado';
+      setTimerButton.textContent = allPumpsOff ? 'Programar encendido' : 'Programar apagado';
     }
 
     editPumpButton.addEventListener('click', () => {
@@ -434,9 +435,13 @@
         editPumpButton.textContent = 'Editar Bombas';
       }
     }
+
+    // Inicializar el texto del botón de temporizador
+    updateTimerButtonText();
   </script>
 </body>
 </html>
+
 
 
 
