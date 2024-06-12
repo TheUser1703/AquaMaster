@@ -112,44 +112,76 @@
     input:checked + .slider:before {
       transform: translateX(26px);
     }
-    .gear-icon {
+
+    /* FAB Menu Styles */
+    .fab {
       position: fixed;
       bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 2.5em;
-      cursor: pointer;
-    }
-    .popup-menu {
-      position: fixed;
-      bottom: 70px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 325px;
-      height: 325px;
-      background-color: white;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background-color: #007bff;
       border-radius: 50%;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      display: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      transition: transform 0.3s;
+    }
+    .fab i {
+      color: white;
+      font-size: 24px;
+    }
+    .fab.open {
+      transform: rotate(45deg);
+    }
+
+    .fab-menu {
+      position: fixed;
+      bottom: 100px;
+      right: 20px;
+      width: 250px;
+      height: 250px;
+      display: flex;
       justify-content: center;
       align-items: center;
-      flex-direction: column;
+      flex-wrap: wrap;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s;
     }
-    .dark-mode .popup-menu {
-      background-color: #444;
-      box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+    .fab-menu.open {
+      visibility: visible;
+      opacity: 1;
     }
-    .popup-menu button {
-      background: none;
+    .fab-menu button {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
       border: none;
+      background-color: #ffffff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 10px;
       cursor: pointer;
-      font-size: 1.5em;
-      margin: 20px;
-      color: inherit;
+      transition: background-color 0.3s;
     }
-    .popup-menu button i {
-      font-size: 2em;
-      margin-bottom: 10px;
+    .fab-menu button:hover {
+      background-color: #f0f0f0;
+    }
+    .fab-menu button i {
+      font-size: 24px;
+      color: #007bff;
+    }
+    .fab-menu button p {
+      margin: 5px 0 0 0;
+      font-size: 12px;
+      color: #333;
     }
   </style>
 </head>
@@ -167,8 +199,10 @@
     <!-- Aquí se añadirán dinámicamente las bombas -->
   </div>
 
-  <i id="gear-icon" class="fas fa-cog gear-icon"></i>
-  <div id="popup-menu" class="popup-menu">
+  <div class="fab" id="fab">
+    <i class="fas fa-plus"></i>
+  </div>
+  <div class="fab-menu" id="fab-menu">
     <button id="new-device" class="button">
       <i class="fas fa-qrcode"></i>
       <p>New Device</p>
@@ -373,18 +407,13 @@
       }
     }
 
-    // Gestión del menú pop-up
-    const gearIcon = document.getElementById('gear-icon');
-    const popupMenu = document.getElementById('popup-menu');
+    // Gestión del menú flotante
+    const fab = document.getElementById('fab');
+    const fabMenu = document.getElementById('fab-menu');
 
-    gearIcon.addEventListener('click', () => {
-      popupMenu.style.display = popupMenu.style.display === 'flex' ? 'none' : 'flex';
-    });
-
-    document.addEventListener('click', (event) => {
-      if (!popupMenu.contains(event.target) && !gearIcon.contains(event.target)) {
-        popupMenu.style.display = 'none';
-      }
+    fab.addEventListener('click', () => {
+      fab.classList.toggle('open');
+      fabMenu.classList.toggle('open');
     });
   </script>
 </body>
