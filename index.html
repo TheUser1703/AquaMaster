@@ -112,6 +112,45 @@
     input:checked + .slider:before {
       transform: translateX(26px);
     }
+    .gear-icon {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2.5em;
+      cursor: pointer;
+    }
+    .popup-menu {
+      position: fixed;
+      bottom: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 325px;
+      height: 325px;
+      background-color: white;
+      border-radius: 50%;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    .dark-mode .popup-menu {
+      background-color: #444;
+      box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+    }
+    .popup-menu button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.5em;
+      margin: 20px;
+      color: inherit;
+    }
+    .popup-menu button i {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body class="light-mode">
@@ -126,6 +165,18 @@
 
   <div class="pump-container" id="pump-container">
     <!-- Aquí se añadirán dinámicamente las bombas -->
+  </div>
+
+  <i id="gear-icon" class="fas fa-cog gear-icon"></i>
+  <div id="popup-menu" class="popup-menu">
+    <button id="new-device" class="button">
+      <i class="fas fa-qrcode"></i>
+      <p>New Device</p>
+    </button>
+    <button id="timer" class="button">
+      <i class="fas fa-clock"></i>
+      <p>Timer</p>
+    </button>
   </div>
 
   <script>
@@ -321,6 +372,20 @@
         editPumpButton.textContent = 'Editar Bombas';
       }
     }
+
+    // Gestión del menú pop-up
+    const gearIcon = document.getElementById('gear-icon');
+    const popupMenu = document.getElementById('popup-menu');
+
+    gearIcon.addEventListener('click', () => {
+      popupMenu.style.display = popupMenu.style.display === 'flex' ? 'none' : 'flex';
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!popupMenu.contains(event.target) && !gearIcon.contains(event.target)) {
+        popupMenu.style.display = 'none';
+      }
+    });
   </script>
 </body>
 </html>
