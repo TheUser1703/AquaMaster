@@ -484,9 +484,37 @@
 
     // Inicializar el texto del botón de temporizador
     updateTimerButtonText();
+
+    // Implementación del Page Lifecycle API
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        console.log('La página está oculta');
+        // Guardar el estado de la aplicación o liberar recursos
+      } else if (document.visibilityState === 'visible') {
+        console.log('La página está visible nuevamente');
+        // Reanudar operaciones que estaban en pausa
+      }
+    });
+
+    document.addEventListener('freeze', () => {
+      console.log('La página está congelada');
+      // Liberar recursos o guardar estado antes de que la página se congele
+    });
+
+    document.addEventListener('resume', () => {
+      console.log('La página ha sido reanudada');
+      // Restaurar el estado o recursos necesarios
+    });
+
+    document.addEventListener('pagehide', () => {
+      console.log('La página está a punto de cerrarse');
+      // Guardar el estado de la aplicación antes de que la página se cierre
+    });
+
   </script>
 </body>
 </html>
+
 
 
 
