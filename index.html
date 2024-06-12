@@ -6,8 +6,7 @@
   <title>AquaMaster</title>
   <link rel="manifest" href="/AquaMaster/manifest.json">
   <link rel="icon" type="image/png" sizes="192x192" href="/AquaMaster/icon-192x192.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192x192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="icon-512x512.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/AquaMaster/icon-512x512.png">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
@@ -37,11 +36,6 @@
     }
     p {
       font-size: 18px;
-    }
-    #video {
-      display: none;
-      border: 1px solid black;
-      margin-top: 20px;
     }
     .button {
       background-color: #007bff;
@@ -118,24 +112,6 @@
     input:checked + .slider:before {
       transform: translateX(26px);
     }
-    .timer-container {
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .timer-select {
-      margin: 0 5px;
-      padding: 5px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-    .active-timer {
-      margin-top: 10px;
-      font-size: 18px;
-      color: #007bff;
-    }
   </style>
 </head>
 <body class="light-mode">
@@ -143,30 +119,15 @@
 
   <i id="toggle-theme" class="fas fa-moon toggle-theme"></i>
 
-  <button id="show-message" class="button">Escanear Código QR</button>
-  <div id="camera-message" style="display: none;">
-    <p>Esta aplicación necesita acceso a tu cámara para escanear códigos QR.</p>
-    <button id="start-camera" class="button">Permitir acceso a la cámara</button>
-  </div>
-  <video id="video" width="300" height="200"></video>
-
   <div class="control-container">
     <button id="add-pump" class="button">Añadir Bomba</button>
     <button id="edit-pump" class="button button-secondary">Editar Bombas</button>
   </div>
 
-  <div class="timer-container">
-    <input type="time" id="alarm-time" class="timer-select">
-    <button id="set-timer" class="button button-secondary">Programar</button>
-    <button id="cancel-timer" class="button button-secondary hidden">Cancelar</button>
-  </div>
-  <div id="active-timer" class="active-timer hidden"><span id="timer-status"></span> programado para: <span id="timer-countdown"></span></div>
-
   <div class="pump-container" id="pump-container">
     <!-- Aquí se añadirán dinámicamente las bombas -->
   </div>
 
-  <script src="https://unpkg.com/qr-scanner/qr-scanner.min.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -177,20 +138,6 @@
           .catch(error => {
             console.error('Error al registrar el Service Worker:', error);
           });
-
-        // Verificar el estado del temporizador al cargar la página
-        const endTime = localStorage.getItem('endTime');
-        if (endTime) {
-          const remainingTime = endTime - Date.now();
-          if (remainingTime > 0) {
-            const timerStatus = localStorage.getItem('timerStatus');
-            timerStatusElement.textContent = timerStatus;
-            startTimer(remainingTime);
-          } else {
-            localStorage.removeItem('endTime');
-            localStorage.removeItem('timerStatus');
-          }
-        }
       });
     }
 
@@ -216,39 +163,6 @@
       }
     });
 
-    const video = document.getElementById('video');
-    const showMessageButton = document.getElementById('show-message');
-    const startCameraButton = document.getElementById('start-camera');
-    const cameraMessage = document.getElementById('camera-message');
-    let qrScanner;
-
-    showMessageButton.addEventListener('click', () => {
-      showMessageButton.style.display = 'none';
-      cameraMessage.style.display = 'block';
-    });
-
-    startCameraButton.addEventListener('click', () => {
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-        .then(mediaStream => {
-          video.srcObject = mediaStream;
-          video.setAttribute('playsinline', true); // necesario para iOS
-          video.style.display = 'block';
-          video.play();
-
-          qrScanner = new QrScanner(video, result => {
-            console.log('QR code detected:', result); // Maneja el resultado del escaneo
-            qrScanner.stop();
-            video.style.display = 'none';
-            mediaStream.getTracks().forEach(track => track.stop());
-          });
-          qrScanner.start();
-          console.log('QR scanner started');
-        })
-        .catch(err => {
-          console.error('Error al acceder a la cámara:', err);
-        });
-    });
-
     const socket = new WebSocket('ws://localhost:8080'); // Actualiza con la URL de tu servidor WebSocket
 
     socket.addEventListener('open', () => {
@@ -272,17 +186,10 @@
     const addPumpButton = document.getElementById('add-pump');
     const editPumpButton = document.getElementById('edit-pump');
     const pumpContainer = document.getElementById('pump-container');
-    const setTimerButton = document.getElementById('set-timer');
-    const cancelTimerButton = document.getElementById('cancel-timer');
-    const alarmTime = document.getElementById('alarm-time');
-    const activeTimerElement = document.getElementById('active-timer');
-    const timerStatusElement = document.getElementById('timer-status');
-    const timerCountdownElement = document.getElementById('timer-countdown');
     let pumpCount = localStorage.getItem('pumpCount') ? parseInt(localStorage.getItem('pumpCount')) : 0;
     let pumpIdCounter = localStorage.getItem('pumpIdCounter') ? parseInt(localStorage.getItem('pumpIdCounter')) : 0;
     let pumpNameCounter = localStorage.getItem('pumpNameCounter') ? parseInt(localStorage.getItem('pumpNameCounter')) : 0;
     let editingMode = false;
-    let timer;
 
     function savePumpsToLocalStorage() {
       const pumps = [];
@@ -320,7 +227,6 @@
           const switchInput = pumpElement.querySelector('.switch input');
           switchInput.addEventListener('change', () => {
             enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: pump.id });
-            updateTimerButtonText();
             savePumpsToLocalStorage();
           });
         });
@@ -352,77 +258,11 @@
       const switchInput = pumpElement.querySelector('.switch input');
       switchInput.addEventListener('change', () => {
         enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: pumpId });
-        updateTimerButtonText();
         savePumpsToLocalStorage();
       });
 
       savePumpsToLocalStorage();
     });
-
-    setTimerButton.addEventListener('click', () => {
-      const [hours, minutes] = alarmTime.value.split(':').map(Number);
-      const now = new Date();
-      const alarm = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
-
-      if (alarm.getTime() < now.getTime()) {
-        alarm.setDate(alarm.getDate() + 1); // Si la hora de alarma ya pasó hoy, establecer para mañana
-      }
-
-      const totalTime = alarm.getTime() - now.getTime();
-
-      clearInterval(timer);
-      const endTime = Date.now() + totalTime;
-
-      localStorage.setItem('endTime', endTime);
-      localStorage.setItem('timerStatus', Array.from(document.querySelectorAll('.switch input')).every(switchInput => !switchInput.checked) ? 'Encendido' : 'Apagado');
-
-      const allPumpsOff = Array.from(document.querySelectorAll('.switch input')).every(switchInput => !switchInput.checked);
-      timerStatusElement.textContent = allPumpsOff ? 'Encendido' : 'Apagado';
-
-      startTimer(totalTime);
-
-      activeTimerElement.classList.remove('hidden');
-      cancelTimerButton.classList.remove('hidden');
-    });
-
-    function startTimer(totalTime) {
-      const endTime = Date.now() + totalTime;
-      localStorage.setItem('endTime', endTime);
-
-      timer = setInterval(() => {
-        const remainingTime = endTime - Date.now();
-        if (remainingTime <= 0) {
-          clearInterval(timer);
-          document.querySelectorAll('.switch input').forEach(switchInput => {
-            switchInput.checked = !switchInput.checked;
-            enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: switchInput.closest('.pump').id });
-          });
-          savePumpsToLocalStorage();
-          activeTimerElement.classList.add('hidden');
-          cancelTimerButton.classList.add('hidden');
-          localStorage.removeItem('endTime');
-          localStorage.removeItem('timerStatus');
-        } else {
-          const hours = Math.floor(remainingTime / 3600000);
-          const minutes = Math.floor((remainingTime % 3600000) / 60000);
-          const seconds = Math.floor((remainingTime % 60000) / 1000);
-          timerCountdownElement.textContent = `${hours}h ${minutes}m ${seconds}s`;
-        }
-      }, 1000);
-    }
-
-    cancelTimerButton.addEventListener('click', () => {
-      clearInterval(timer);
-      activeTimerElement.classList.add('hidden');
-      cancelTimerButton.classList.add('hidden');
-      localStorage.removeItem('endTime');
-      localStorage.removeItem('timerStatus');
-    });
-
-    function updateTimerButtonText() {
-      const allPumpsOff = Array.from(document.querySelectorAll('.switch input')).every(switchInput => !switchInput.checked);
-      setTimerButton.textContent = allPumpsOff ? 'Programar encendido' : 'Programar apagado';
-    }
 
     editPumpButton.addEventListener('click', () => {
       const pumpElements = document.querySelectorAll('.pump');
@@ -481,55 +321,10 @@
         editPumpButton.textContent = 'Editar Bombas';
       }
     }
-
-    // Inicializar el texto del botón de temporizador
-    updateTimerButtonText();
-
-    // Implementación del Page Lifecycle API
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') {
-        console.log('La página está oculta');
-        localStorage.setItem('timerEndTime', localStorage.getItem('endTime'));
-      } else if (document.visibilityState === 'visible') {
-        console.log('La página está visible nuevamente');
-        const timerEndTime = localStorage.getItem('timerEndTime');
-        if (timerEndTime) {
-          const remainingTime = timerEndTime - Date.now();
-          if (remainingTime > 0) {
-            startTimer(remainingTime);
-          }
-        }
-      }
-    });
-
-    document.addEventListener('freeze', () => {
-      console.log('La página está congelada');
-      localStorage.setItem('timerEndTime', localStorage.getItem('endTime'));
-    });
-
-    document.addEventListener('resume', () => {
-      console.log('La página ha sido reanudada');
-      const timerEndTime = localStorage.getItem('timerEndTime');
-      if (timerEndTime) {
-        const remainingTime = timerEndTime - Date.now();
-        if (remainingTime > 0) {
-          startTimer(remainingTime);
-        }
-      }
-    });
-
-    window.addEventListener('beforeunload', () => {
-      localStorage.setItem('timerEndTime', localStorage.getItem('endTime'));
-    });
-
-    document.addEventListener('pagehide', () => {
-      console.log('La página está a punto de cerrarse');
-      localStorage.setItem('timerEndTime', localStorage.getItem('endTime'));
-    });
-
   </script>
 </body>
 </html>
+
 
 
 
