@@ -490,25 +490,47 @@
       if (document.visibilityState === 'hidden') {
         console.log('La página está oculta');
         // Guardar el estado de la aplicación o liberar recursos
+        localStorage.setItem('timerEndTime', localStorage.getItem('endTime'));
       } else if (document.visibilityState === 'visible') {
         console.log('La página está visible nuevamente');
         // Reanudar operaciones que estaban en pausa
+        const timerEndTime = localStorage.getItem('timerEndTime');
+        if (timerEndTime) {
+          const remainingTime = timerEndTime - Date.now();
+          if (remainingTime > 0) {
+            startTimer(remainingTime);
+          }
+        }
       }
     });
 
     document.addEventListener('freeze', () => {
       console.log('La página está congelada');
       // Liberar recursos o guardar estado antes de que la página se congele
+      localStorage.setItem('timerEndTime', localStorage.getItem('endTime'));
     });
 
     document.addEventListener('resume', () => {
       console.log('La página ha sido reanudada');
       // Restaurar el estado o recursos necesarios
+      const timerEndTime = localStorage.getItem('timerEndTime');
+      if (timerEndTime) {
+        const remainingTime = timerEndTime - Date.now();
+        if (remainingTime > 0) {
+          startTimer(remainingTime);
+        }
+      }
+    });
+
+    window.addEventListener('beforeunload', () => {
+      // Guardar el estado del temporizador antes de que la página se cierre
+      localStorage.setItem('timerEndTime', localStorage.getItem('endTime'));
     });
 
     document.addEventListener('pagehide', () => {
       console.log('La página está a punto de cerrarse');
       // Guardar el estado de la aplicación antes de que la página se cierre
+      localStorage.setItem('timerEndTime', localStorage.getItem('endTime'));
     });
 
   </script>
