@@ -162,7 +162,7 @@
 
   <i id="toggle-theme" class="fas fa-moon toggle-theme"></i>
 
-  <button id="show-message" class="button">Escanear Código QR</button>
+  
   <div id="camera-message" style="display: none;">
     <p>Esta aplicación necesita acceso a tu cámara para escanear códigos QR.</p>
     <button id="start-camera" class="button">Permitir acceso a la cámara</button>
@@ -181,7 +181,7 @@
         <button onclick="setTimer()">Set Timer</button>
     
     <input type="time" id="alarm-time" class="timer-select">
-    <button id="set-timer" class="button button-secondary">Programar</button>
+    
     <button id="cancel-timer" class="button button-secondary hidden">Cancelar</button>
   </div>
   <div id="active-timer" class="active-timer hidden"><span id="timer-status"></span> programado para: <span id="timer-countdown"></span></div>
@@ -552,7 +552,46 @@
     });
 
   </script>
-</body>
+
+    <button id="settings-button" class="settings-button">
+      <i class="fas fa-cog"></i>
+    </button>
+
+    <div id="settings-menu" class="settings-menu hidden">
+      <button id="add-device-qr" class="menu-button">
+        <i class="fas fa-qrcode"></i> Añadir dispositivo
+      </button>
+      <button id="schedule-timer" class="menu-button">
+        <i class="fas fa-clock"></i> Programar
+      </button>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const settingsButton = document.getElementById('settings-button');
+        const settingsMenu = document.getElementById('settings-menu');
+        const addDeviceQRButton = document.getElementById('add-device-qr');
+        const scheduleTimerButton = document.getElementById('schedule-timer');
+
+        settingsButton.addEventListener('click', () => {
+          settingsMenu.classList.toggle('hidden');
+        });
+
+        addDeviceQRButton.addEventListener('click', () => {
+          settingsMenu.classList.add('hidden');
+          showMessageButton.style.display = 'block';
+          cameraMessage.style.display = 'block';
+        });
+
+        scheduleTimerButton.addEventListener('click', () => {
+          settingsMenu.classList.add('hidden');
+          document.querySelector('.timer-container').scrollIntoView({ behavior: 'smooth' });
+        });
+      });
+    </script>
+    </body>
+    </html>
+    
 </html>
 
 
