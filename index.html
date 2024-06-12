@@ -177,6 +177,20 @@
           .catch(error => {
             console.error('Error al registrar el Service Worker:', error);
           });
+
+        // Verificar el estado del temporizador al cargar la página
+        const endTime = localStorage.getItem('endTime');
+        if (endTime) {
+          const remainingTime = endTime - Date.now();
+          if (remainingTime > 0) {
+            const timerStatus = localStorage.getItem('timerStatus');
+            timerStatusElement.textContent = timerStatus;
+            startTimer(remainingTime);
+          } else {
+            localStorage.removeItem('endTime');
+            localStorage.removeItem('timerStatus');
+          }
+        }
       });
     }
 
@@ -365,6 +379,16 @@
       const allPumpsOff = Array.from(document.querySelectorAll('.switch input')).every(switchInput => !switchInput.checked);
       timerStatusElement.textContent = allPumpsOff ? 'Encendido' : 'Apagado';
 
+      startTimer(totalTime);
+
+      activeTimerElement.classList.remove('hidden');
+      cancelTimerButton.classList.remove('hidden');
+    });
+
+    function startTimer(totalTime) {
+      const endTime = Date.now() + totalTime;
+      localStorage.setItem('endTime', endTime);
+
       timer = setInterval(() => {
         const remainingTime = endTime - Date.now();
         if (remainingTime <= 0) {
@@ -385,10 +409,7 @@
           timerCountdownElement.textContent = `${hours}h ${minutes}m ${seconds}s`;
         }
       }, 1000);
-
-      activeTimerElement.classList.remove('hidden');
-      cancelTimerButton.classList.remove('hidden');
-    });
+    }
 
     cancelTimerButton.addEventListener('click', () => {
       clearInterval(timer);
