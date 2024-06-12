@@ -137,26 +137,7 @@
       color: #007bff;
     }
   </style>
-
-    <script>
-        async function setTimer() {
-            const time = parseInt(document.getElementById('timer-duration').value, 10);
-            const action = document.getElementById('timer-action').value;
-
-            const response = await fetch('http://localhost:3000/set-timer', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ time, action })
-            });
-
-            const result = await response.text();
-            alert(result);
-        }
-    </script>
-    </head>
-    
+</head>
 <body class="light-mode">
   <h1>AquaMaster</h1>
 
@@ -174,12 +155,7 @@
     <button id="edit-pump" class="button button-secondary">Editar Bombas</button>
   </div>
 
-  
-    <div class="timer-container">
-        <input type="number" id="timer-duration" placeholder="Duration in milliseconds">
-        <input type="text" id="timer-action" placeholder="Action to execute">
-        <button onclick="setTimer()">Set Timer</button>
-    
+  <div class="timer-container">
     <input type="time" id="alarm-time" class="timer-select">
     <button id="set-timer" class="button button-secondary">Programar</button>
     <button id="cancel-timer" class="button button-secondary hidden">Cancelar</button>
@@ -554,7 +530,6 @@
   </script>
 </body>
 </html>
-
 
 
 
