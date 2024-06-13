@@ -89,6 +89,13 @@
         alert('Por favor seleccione un tiempo válido.');
       }
     });
+
+    // Aplicar el tema almacenado
+    const body = document.body;
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    if (currentTheme === 'dark') {
+      body.classList.replace('light-mode', 'dark-mode');
+    }
   </script>
 </body>
 </html>
