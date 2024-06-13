@@ -91,7 +91,7 @@
       const minutes = parseInt(document.getElementById('minutes').value);
       const totalTimeInMinutes = hours * 60 + minutes;
 
-      const pumpStatus = Array.from(document.querySelectorAll('.switch input')).some(switchInput => switchInput.checked);
+      const pumpStatus = JSON.parse(localStorage.getItem('pumpStatus')) || false; // Obtener estado de las bombas de localStorage
       const action = pumpStatus ? 'turnOff' : 'turnOn';
       const actionText = pumpStatus ? 'apagarán' : 'encenderán';
 
