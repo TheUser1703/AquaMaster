@@ -6,7 +6,7 @@
   <title>Programar Temporizador</title>
   <link rel="manifest" href="/AquaMaster/manifest.json">
   <link rel="icon" type="image/png" sizes="192x192" href="/AquaMaster/icon-192x192.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="/AquaMaster/icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/AquaMaster/icon-512x512.png">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
@@ -95,12 +95,17 @@
       const action = pumpStatus ? 'turnOff' : 'turnOn';
 
       if (totalTimeInMinutes > 0) {
+        const endTime = new Date(new Date().getTime() + totalTimeInMinutes * 60000);
+        localStorage.setItem('timerEndTime', endTime);
+
         setTimeout(() => {
           // Lógica para cambiar el estado de las bombas después del tiempo especificado
           localStorage.setItem('pumpStatus', JSON.stringify(!pumpStatus)); // Cambiar estado de las bombas en localStorage
           alert('Las bombas se ' + (pumpStatus ? 'apagarán' : 'encenderán') + ' ahora.');
         }, totalTimeInMinutes * 60000);
+
         alert('Las bombas se ' + (pumpStatus ? 'apagarán' : 'encenderán') + ' en ' + totalTimeInMinutes + ' minutos.');
+        location.href = 'index.html'; // Redirigir a la página principal
       } else {
         alert('Por favor seleccione un tiempo válido.');
       }
