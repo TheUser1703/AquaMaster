@@ -207,7 +207,7 @@
       <i class="fas fa-qrcode"></i>
       <p>New Device</p>
     </button>
-    <button id="timer" class="button" onclick="openTimerMenu()">
+    <button id="timer" class="button" onclick="location.href='timer.html'">
       <i class="fas fa-clock"></i>
       <p>Timer</p>
     </button>
@@ -415,24 +415,6 @@
       fab.classList.toggle('open');
       fabMenu.classList.toggle('open');
     });
-
-    function openTimerMenu() {
-      const pumpStatus = Array.from(document.querySelectorAll('.switch input')).some(switchInput => switchInput.checked);
-      const action = pumpStatus ? 'turnOff' : 'turnOn';
-      const time = prompt('Ingrese el tiempo en minutos para ' + (pumpStatus ? 'apagar' : 'encender') + ' las bombas:');
-      if (time && !isNaN(time)) {
-        setTimeout(() => {
-          document.querySelectorAll('.switch input').forEach(switchInput => {
-            switchInput.checked = action === 'turnOn';
-            enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: switchInput.closest('.pump').id });
-          });
-          savePumpsToLocalStorage();
-        }, time * 60000);
-        alert('Las bombas se ' + (pumpStatus ? 'apagarán' : 'encenderán') + ' en ' + time + ' minutos.');
-      } else {
-        alert('Tiempo no válido.');
-      }
-    }
   </script>
 </body>
 </html>
