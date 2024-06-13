@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nuevo Dispositivo</title>
+  <link rel="manifest" href="/AquaMaster/manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="/AquaMaster/icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/AquaMaster/icon-512x512.png">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+      padding: 50px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .light-mode {
+      background-color: #f0f4f8;
+      color: #333;
+    }
+    .dark-mode {
+      background-color: #333;
+      color: #f0f4f8;
+    }
+    .toggle-theme {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      cursor: pointer;
+    }
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+    p {
+      font-size: 18px;
+    }
+    .button {
+      background-color: #007bff;
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+    #video {
+      display: none;
+      border: 1px solid black;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body class="light-mode">
+  <h1>Nuevo Dispositivo</h1>
+  <button id="start-camera" class="button">Permitir acceso a la cámara</button>
+  <video id="video" width="300" height="200"></video>
+
+  <script src="https://unpkg.com/qr-scanner/qr-scanner.min.js"></script>
+  <script>
+    const video = document.getElementById('video');
+    const startCameraButton = document.getElementById('start-camera');
+    let qrScanner;
+
+    startCameraButton.addEventListener('click', () => {
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        .then(mediaStream => {
+          video.srcObject = mediaStream;
+          video.setAttribute('playsinline', true); // necesario para iOS
+          video.style.display = 'block';
+          video.play();
+
+          qrScanner = new QrScanner(video, result => {
+            console.log('QR code detected:', result); // Maneja el resultado del escaneo
+            qrScanner.stop();
+            video.style.display = 'none';
+            mediaStream.getTracks().forEach(track => track.stop());
+          });
+          qrScanner.start();
+          console.log('QR scanner started');
+        })
+        .catch(err => {
+          console.error('Error al acceder a la cámara:', err);
+        });
+    });
+  </script>
+</body>
+</html>
