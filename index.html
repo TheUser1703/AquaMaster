@@ -425,6 +425,7 @@
     // Mostrar cuenta regresiva
     const countdownElement = document.getElementById('countdown');
     const savedEndTime = localStorage.getItem('timerEndTime');
+    const savedAction = localStorage.getItem('timerAction'); // Agregar la acción guardada
 
     if (savedEndTime) {
       countdownElement.classList.remove('hidden');
@@ -441,7 +442,15 @@
         } else {
           countdownElement.textContent = 'El temporizador ha terminado';
           localStorage.removeItem('timerEndTime');
+          localStorage.removeItem('timerAction');
           clearInterval(countdownInterval);
+          
+          // Realizar la acción almacenada cuando el temporizador termine
+          document.querySelectorAll('.switch input').forEach(switchInput => {
+            switchInput.checked = savedAction === 'turnOn';
+            enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: switchInput.closest('.pump').id });
+          });
+          savePumpsToLocalStorage();
         }
       };
 
