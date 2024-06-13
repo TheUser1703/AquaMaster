@@ -24,19 +24,6 @@
       background-color: #333;
       color: #f0f4f8;
     }
-    .toggle-theme {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      cursor: pointer;
-    }
-    h1 {
-      font-size: 2.5em;
-      margin-bottom: 20px;
-    }
-    p {
-      font-size: 18px;
-    }
     .button {
       background-color: #007bff;
       border: none;
@@ -55,9 +42,16 @@
       border: 1px solid black;
       margin-top: 20px;
     }
+    #back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body class="light-mode">
+  <i id="back-button" class="fas fa-arrow-left" onclick="location.href='index.html'"></i>
   <h1>Nuevo Dispositivo</h1>
   <button id="start-camera" class="button">Permitir acceso a la cámara</button>
   <video id="video" width="300" height="200"></video>
@@ -92,3 +86,4 @@
   </script>
 </body>
 </html>
+
