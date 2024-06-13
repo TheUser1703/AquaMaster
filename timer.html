@@ -6,7 +6,7 @@
   <title>Programar Temporizador</title>
   <link rel="manifest" href="/AquaMaster/manifest.json">
   <link rel="icon" type="image/png" sizes="192x192" href="/AquaMaster/icon-192x192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="/AquaMaster/icon-512x512.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/AquaMaster/icon-192x192.png">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
@@ -57,32 +57,48 @@
   <h1>Programar Temporizador</h1>
   <label for="hours">Horas:</label>
   <select id="hours">
-    ${Array.from({ length: 24 }, (_, i) => `<option value="${i}">${i}</option>`).join('')}
+    <!-- Las opciones serán añadidas por JavaScript -->
   </select>
   <label for="minutes">Minutos:</label>
   <select id="minutes">
-    ${Array.from({ length: 60 }, (_, i) => `<option value="${i}">${i}</option>`).join('')}
+    <!-- Las opciones serán añadidas por JavaScript -->
   </select>
   <button id="set-timer" class="button">Establecer Temporizador</button>
 
   <script>
+    const hoursSelect = document.getElementById('hours');
+    const minutesSelect = document.getElementById('minutes');
     const setTimerButton = document.getElementById('set-timer');
+
+    // Añadir opciones de horas
+    for (let i = 0; i < 24; i++) {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = i;
+      hoursSelect.appendChild(option);
+    }
+
+    // Añadir opciones de minutos
+    for (let i = 0; i < 60; i++) {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = i;
+      minutesSelect.appendChild(option);
+    }
 
     setTimerButton.addEventListener('click', () => {
       const hours = parseInt(document.getElementById('hours').value);
       const minutes = parseInt(document.getElementById('minutes').value);
       const totalTimeInMinutes = hours * 60 + minutes;
 
-      const pumpStatus = Array.from(document.querySelectorAll('.switch input')).some(switchInput => switchInput.checked);
+      const pumpStatus = JSON.parse(localStorage.getItem('pumpStatus')) || false; // Obtener estado de las bombas de localStorage
       const action = pumpStatus ? 'turnOff' : 'turnOn';
 
       if (totalTimeInMinutes > 0) {
         setTimeout(() => {
-          document.querySelectorAll('.switch input').forEach(switchInput => {
-            switchInput.checked = action === 'turnOn';
-            enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: switchInput.closest('.pump').id });
-          });
-          savePumpsToLocalStorage();
+          // Lógica para cambiar el estado de las bombas después del tiempo especificado
+          localStorage.setItem('pumpStatus', JSON.stringify(!pumpStatus)); // Cambiar estado de las bombas en localStorage
+          alert('Las bombas se ' + (pumpStatus ? 'apagarán' : 'encenderán') + ' ahora.');
         }, totalTimeInMinutes * 60000);
         alert('Las bombas se ' + (pumpStatus ? 'apagarán' : 'encenderán') + ' en ' + totalTimeInMinutes + ' minutos.');
       } else {
@@ -99,3 +115,4 @@
   </script>
 </body>
 </html>
+
