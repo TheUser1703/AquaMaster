@@ -183,6 +183,10 @@
       font-size: 12px;
       color: #333;
     }
+    #countdown {
+      font-size: 24px;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body class="light-mode">
@@ -198,6 +202,8 @@
   <div class="pump-container" id="pump-container">
     <!-- Aquí se añadirán dinámicamente las bombas -->
   </div>
+
+  <div id="countdown" class="hidden"></div>
 
   <div class="fab" id="fab">
     <i class="fas fa-plus"></i>
@@ -415,6 +421,33 @@
       fab.classList.toggle('open');
       fabMenu.classList.toggle('open');
     });
+
+    // Mostrar cuenta regresiva
+    const countdownElement = document.getElementById('countdown');
+    const savedEndTime = localStorage.getItem('timerEndTime');
+
+    if (savedEndTime) {
+      countdownElement.classList.remove('hidden');
+      const endTime = new Date(savedEndTime);
+
+      const updateCountdown = () => {
+        const now = new Date();
+        const timeDifference = endTime - now;
+
+        if (timeDifference > 0) {
+          const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+          countdownElement.textContent = `Tiempo restante: ${minutes}m ${seconds}s`;
+        } else {
+          countdownElement.textContent = 'El temporizador ha terminado';
+          localStorage.removeItem('timerEndTime');
+          clearInterval(countdownInterval);
+        }
+      };
+
+      const countdownInterval = setInterval(updateCountdown, 1000);
+      updateCountdown();
+    }
   </script>
 </body>
 </html>
