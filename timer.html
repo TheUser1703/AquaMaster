@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Programar Temporizador</title>
+  <link rel="manifest" href="/AquaMaster/manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="/AquaMaster/icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/AquaMaster/icon-512x512.png">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+      padding: 50px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .light-mode {
+      background-color: #f0f4f8;
+      color: #333;
+    }
+    .dark-mode {
+      background-color: #333;
+      color: #f0f4f8;
+    }
+    .button {
+      background-color: #007bff;
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+    #back-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      cursor: pointer;
+    }
+    select {
+      font-size: 16px;
+      margin: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body class="light-mode">
+  <i id="back-button" class="fas fa-arrow-left" onclick="location.href='index.html'"></i>
+  <h1>Programar Temporizador</h1>
+  <label for="hours">Horas:</label>
+  <select id="hours">
+    ${Array.from({ length: 24 }, (_, i) => `<option value="${i}">${i}</option>`).join('')}
+  </select>
+  <label for="minutes">Minutos:</label>
+  <select id="minutes">
+    ${Array.from({ length: 60 }, (_, i) => `<option value="${i}">${i}</option>`).join('')}
+  </select>
+  <button id="set-timer" class="button">Establecer Temporizador</button>
+
+  <script>
+    const setTimerButton = document.getElementById('set-timer');
+
+    setTimerButton.addEventListener('click', () => {
+      const hours = parseInt(document.getElementById('hours').value);
+      const minutes = parseInt(document.getElementById('minutes').value);
+      const totalTimeInMinutes = hours * 60 + minutes;
+
+      const pumpStatus = Array.from(document.querySelectorAll('.switch input')).some(switchInput => switchInput.checked);
+      const action = pumpStatus ? 'turnOff' : 'turnOn';
+
+      if (totalTimeInMinutes > 0) {
+        setTimeout(() => {
+          document.querySelectorAll('.switch input').forEach(switchInput => {
+            switchInput.checked = action === 'turnOn';
+            enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: switchInput.closest('.pump').id });
+          });
+          savePumpsToLocalStorage();
+        }, totalTimeInMinutes * 60000);
+        alert('Las bombas se ' + (pumpStatus ? 'apagarán' : 'encenderán') + ' en ' + totalTimeInMinutes + ' minutos.');
+      } else {
+        alert('Por favor seleccione un tiempo válido.');
+      }
+    });
+  </script>
+</body>
+</html>
