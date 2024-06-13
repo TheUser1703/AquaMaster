@@ -91,19 +91,14 @@
       const minutes = parseInt(document.getElementById('minutes').value);
       const totalTimeInMinutes = hours * 60 + minutes;
 
-      const pumpStatus = JSON.parse(localStorage.getItem('pumpStatus')) || false; // Obtener estado de las bombas de localStorage
+      const pumpStatus = Array.from(document.querySelectorAll('.switch input')).some(switchInput => switchInput.checked);
       const action = pumpStatus ? 'turnOff' : 'turnOn';
       const actionText = pumpStatus ? 'apagarán' : 'encenderán';
 
       if (totalTimeInMinutes > 0) {
         const endTime = new Date(new Date().getTime() + totalTimeInMinutes * 60000);
         localStorage.setItem('timerEndTime', endTime);
-
-        setTimeout(() => {
-          // Lógica para cambiar el estado de las bombas después del tiempo especificado
-          localStorage.setItem('pumpStatus', JSON.stringify(!pumpStatus)); // Cambiar estado de las bombas en localStorage
-          alert(`Las bombas se ${actionText} ahora.`);
-        }, totalTimeInMinutes * 60000);
+        localStorage.setItem('timerAction', action); // Guardar la acción
 
         alert(`Las bombas se ${actionText} en ${totalTimeInMinutes} minutos.`);
         location.href = 'index.html'; // Redirigir a la página principal
