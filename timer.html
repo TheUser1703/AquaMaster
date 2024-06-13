@@ -93,6 +93,7 @@
 
       const pumpStatus = JSON.parse(localStorage.getItem('pumpStatus')) || false; // Obtener estado de las bombas de localStorage
       const action = pumpStatus ? 'turnOff' : 'turnOn';
+      const actionText = pumpStatus ? 'apagarán' : 'encenderán';
 
       if (totalTimeInMinutes > 0) {
         const endTime = new Date(new Date().getTime() + totalTimeInMinutes * 60000);
@@ -101,10 +102,10 @@
         setTimeout(() => {
           // Lógica para cambiar el estado de las bombas después del tiempo especificado
           localStorage.setItem('pumpStatus', JSON.stringify(!pumpStatus)); // Cambiar estado de las bombas en localStorage
-          alert('Las bombas se ' + (pumpStatus ? 'apagarán' : 'encenderán') + ' ahora.');
+          alert(`Las bombas se ${actionText} ahora.`);
         }, totalTimeInMinutes * 60000);
 
-        alert('Las bombas se ' + (pumpStatus ? 'apagarán' : 'encenderán') + ' en ' + totalTimeInMinutes + ' minutos.');
+        alert(`Las bombas se ${actionText} en ${totalTimeInMinutes} minutos.`);
         location.href = 'index.html'; // Redirigir a la página principal
       } else {
         alert('Por favor seleccione un tiempo válido.');
