@@ -37,51 +37,40 @@
       cursor: pointer;
       border-radius: 8px;
     }
-    #video {
-      display: none;
-      border: 1px solid black;
-      margin-top: 20px;
-    }
     #back-button {
       position: fixed;
       top: 20px;
       left: 20px;
+      font-size: 32px; /* Tamaño aumentado */
       cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      padding: 10px;
+      border-radius: 50%;
     }
   </style>
 </head>
 <body class="light-mode">
   <i id="back-button" class="fas fa-arrow-left" onclick="location.href='index.html'"></i>
   <h1>Nuevo Dispositivo</h1>
-  <button id="start-camera" class="button">Permitir acceso a la cámara</button>
-  <video id="video" width="300" height="200"></video>
+  <button id="scan-qr" class="button">Escanear Código QR</button>
 
-  <script src="https://unpkg.com/qr-scanner/qr-scanner.min.js"></script>
   <script>
-    const video = document.getElementById('video');
-    const startCameraButton = document.getElementById('start-camera');
-    let qrScanner;
+    const scanQrButton = document.getElementById('scan-qr');
 
-    startCameraButton.addEventListener('click', () => {
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-        .then(mediaStream => {
-          video.srcObject = mediaStream;
-          video.setAttribute('playsinline', true); // necesario para iOS
-          video.style.display = 'block';
-          video.play();
-
-          qrScanner = new QrScanner(video, result => {
-            console.log('QR code detected:', result); // Maneja el resultado del escaneo
-            qrScanner.stop();
-            video.style.display = 'none';
-            mediaStream.getTracks().forEach(track => track.stop());
+    scanQrButton.addEventListener('click', () => {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+          .then(stream => {
+            // Aquí puedes añadir la lógica para escanear el código QR usando la cámara
+            alert('Acceso a la cámara concedido. Aquí se iniciará el escaneo del código QR.');
+          })
+          .catch(err => {
+            alert('Error al acceder a la cámara: ' + err);
           });
-          qrScanner.start();
-          console.log('QR scanner started');
-        })
-        .catch(err => {
-          console.error('Error al acceder a la cámara:', err);
-        });
+      } else {
+        alert('La función de escaneo de código QR no es compatible con este dispositivo.');
+      }
     });
 
     // Aplicar el tema almacenado
