@@ -41,7 +41,12 @@
       position: fixed;
       top: 20px;
       left: 20px;
+      font-size: 32px; /* Tamaño aumentado */
       cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      padding: 10px;
+      border-radius: 50%;
     }
     select {
       font-size: 16px;
@@ -94,7 +99,7 @@
       const pumps = JSON.parse(localStorage.getItem('pumps')) || [];
 
       if (pumps.length === 0) {
-        alert('No hay switches activos, por favor agregue switches.');
+        alert('No hay bombas activas, por favor agregue bombas.');
         return;
       }
 
