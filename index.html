@@ -432,6 +432,13 @@
     const savedEndTime = localStorage.getItem('timerEndTime');
     const savedAction = localStorage.getItem('timerAction'); // Agregar la acción guardada
 
+    // Función para enviar notificaciones
+    function enviarNotificacion(titulo, cuerpo) {
+      if (Notification.permission === 'granted') {
+        new Notification(titulo, { body: cuerpo });
+      }
+    }
+
     if (savedEndTime) {
       countdownElement.classList.remove('hidden');
       const endTime = new Date(savedEndTime);
@@ -456,11 +463,24 @@
             enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: switchInput.closest('.pump').id });
           });
           savePumpsToLocalStorage();
+          
+          // Enviar notificación
+          const accionRealizada = savedAction === 'turnOn' ? 'encendidas' : 'apagadas';
+          enviarNotificacion('AquaMaster', `Las bombas han sido ${accionRealizada}.`);
         }
       };
 
       const countdownInterval = setInterval(updateCountdown, 1000);
       updateCountdown();
+    }
+
+    // Solicitar permiso para notificaciones
+    if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          enviarNotificacion('AquaMaster', 'Notificaciones activadas.');
+        }
+      });
     }
   </script>
 </body>
