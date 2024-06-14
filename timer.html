@@ -91,7 +91,14 @@
       const minutes = parseInt(document.getElementById('minutes').value);
       const totalTimeInMinutes = hours * 60 + minutes;
 
-      const pumpStatus = JSON.parse(localStorage.getItem('pumpStatus')) || false; // Obtener estado de las bombas de localStorage
+      const pumps = JSON.parse(localStorage.getItem('pumps')) || [];
+
+      if (pumps.length === 0) {
+        alert('No hay bombas activas, por favor agregue bombas.');
+        return;
+      }
+
+      const pumpStatus = pumps.some(pump => pump.status);
       const action = pumpStatus ? 'turnOff' : 'turnOn';
       const actionText = pumpStatus ? 'apagarán' : 'encenderán';
 
