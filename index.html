@@ -241,25 +241,31 @@
             console.log('Service Worker registrado con éxito:', registration);
 
             // Solicitar permisos para las notificaciones push
-            if (Notification.permission === 'default') {
-              Notification.requestPermission().then(function(permission) {
-                if (permission === 'granted') {
-                  console.log('Permiso de notificación concedido');
-                }
-              });
-            } else if (Notification.permission === 'granted') {
-              console.log('Permiso de notificación ya concedido');
+            if ('Notification' in window) {
+              if (Notification.permission === 'default') {
+                Notification.requestPermission().then(function(permission) {
+                  if (permission === 'granted') {
+                    console.log('Permiso de notificación concedido');
+                  }
+                });
+              } else if (Notification.permission === 'granted') {
+                console.log('Permiso de notificación ya concedido');
+              }
+            } else {
+              console.warn('API de Notificaciones no disponible en este navegador.');
             }
           })
           .catch(error => {
             console.error('Error al registrar el Service Worker:', error);
           });
       });
+    } else {
+      console.warn('Service Workers no son soportados en este navegador.');
     }
 
     // Función para enviar notificaciones
     function enviarNotificacion(titulo, cuerpo) {
-      if (Notification.permission === 'granted') {
+      if ('Notification' in window && Notification.permission === 'granted') {
         navigator.serviceWorker.ready.then(registration => {
           console.log('Enviando notificación:', titulo, cuerpo);
           registration.showNotification(titulo, {
@@ -269,7 +275,7 @@
           });
         });
       } else {
-        console.warn('No se pueden enviar notificaciones, permiso no concedido.');
+        console.warn('No se pueden enviar notificaciones, permiso no concedido o API no soportada.');
       }
     }
 
@@ -474,7 +480,7 @@
     const savedAction = localStorage.getItem('timerAction');
 
     function enviarNotificacion(titulo, cuerpo) {
-      if (Notification.permission === 'granted') {
+      if ('Notification' in window && Notification.permission === 'granted') {
         navigator.serviceWorker.ready.then(registration => {
           console.log('Enviando notificación:', titulo, cuerpo);
           registration.showNotification(titulo, {
@@ -484,7 +490,7 @@
           });
         });
       } else {
-        console.warn('No se pueden enviar notificaciones, permiso no concedido.');
+        console.warn('No se pueden enviar notificaciones, permiso no concedido o API no soportada.');
       }
     }
 
@@ -523,18 +529,23 @@
       updateCountdown();
     }
 
-    if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-      Notification.requestPermission().then(permission => {
-        if (permission === 'granted') {
-          enviarNotificacion('AquaMaster', 'Notificaciones activadas.');
-        }
-      });
-    } else if (Notification.permission === 'granted') {
-      enviarNotificacion('AquaMaster', 'Notificaciones activadas.');
+    if ('Notification' in window) {
+      if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            enviarNotificacion('AquaMaster', 'Notificaciones activadas.');
+          }
+        });
+      } else if (Notification.permission === 'granted') {
+        enviarNotificacion('AquaMaster', 'Notificaciones activadas.');
+      }
+    } else {
+      console.warn('API de Notificaciones no disponible en este navegador.');
     }
   </script>
 </body>
 </html>
+
 
 
 
