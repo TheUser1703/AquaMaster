@@ -25,3 +25,25 @@ self.addEventListener('fetch', event => {
       })
   );
 });
+
+// Manejo de eventos push para notificaciones
+self.addEventListener('push', function(event) {
+  const data = event.data ? event.data.json() : {};
+  const options = {
+    body: data.body || 'Notificación sin cuerpo',
+    icon: '/AquaMaster/icon-192x192.png', // Ruta a tu icono de notificación
+    badge: '/AquaMaster/icon-192x192.png' // Ruta a tu insignia de notificación
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'Notificación sin título', options)
+  );
+});
+
+self.addEventListener('notificationclick', function(event) {
+  event.notification.close();
+
+  event.waitUntil(
+    clients.openWindow('/AquaMaster/')
+  );
+});
