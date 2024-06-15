@@ -228,6 +228,11 @@
     </button>
   </div>
 
+  <!-- Botón para enviar una notificación de prueba -->
+  <div>
+    <button id="test-notification" class="button">Enviar Notificación de Prueba</button>
+  </div>
+
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -240,12 +245,10 @@
               Notification.requestPermission().then(function(permission) {
                 if (permission === 'granted') {
                   console.log('Permiso de notificación concedido');
-                  subscribeUserToPush(registration);
                 }
               });
             } else if (Notification.permission === 'granted') {
               console.log('Permiso de notificación ya concedido');
-              subscribeUserToPush(registration);
             }
           })
           .catch(error => {
@@ -254,44 +257,26 @@
       });
     }
 
-    function subscribeUserToPush(registration) {
-      registration.pushManager.getSubscription()
-        .then(function(subscription) {
-          if (subscription === null) {
-            // Crear una nueva suscripción
-            const applicationServerKey = urlBase64ToUint8Array('YOUR_PUBLIC_KEY');
-            registration.pushManager.subscribe({
-              userVisibleOnly: true,
-              applicationServerKey: applicationServerKey
-            })
-            .then(function(subscription) {
-              console.log('Usuario suscrito:', subscription);
-              // Enviar la suscripción al servidor para guardar
-            })
-            .catch(function(error) {
-              console.error('Error al suscribirse a Push:', error);
-            });
-          } else {
-            console.log('Usuario ya está suscrito:', subscription);
-            // Enviar la suscripción existente al servidor para guardar
-          }
+    // Función para enviar notificaciones
+    function enviarNotificacion(titulo, cuerpo) {
+      if (Notification.permission === 'granted') {
+        navigator.serviceWorker.ready.then(registration => {
+          console.log('Enviando notificación:', titulo, cuerpo);
+          registration.showNotification(titulo, {
+            body: cuerpo,
+            icon: '/AquaMaster/icon-192x192.png',
+            badge: '/AquaMaster/icon-192x192.png'
+          });
         });
-    }
-
-    function urlBase64ToUint8Array(base64String) {
-      const padding = '='.repeat((4 - base64String.length % 4) % 4);
-      const base64 = (base64String + padding)
-        .replace(/-/g, '+')
-        .replace(/_/g, '/');
-
-      const rawData = window.atob(base64);
-      const outputArray = new Uint8Array(rawData.length);
-
-      for (let i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i);
+      } else {
+        console.warn('No se pueden enviar notificaciones, permiso no concedido.');
       }
-      return outputArray;
     }
+
+    // Botón para enviar una notificación de prueba
+    document.getElementById('test-notification').addEventListener('click', () => {
+      enviarNotificacion('Prueba de Notificación', 'Esta es una notificación de prueba.');
+    });
 
     // Modo Oscuro y Claro
     const toggleThemeButton = document.getElementById('toggle-theme');
@@ -486,13 +471,12 @@
     // Mostrar cuenta regresiva
     const countdownElement = document.getElementById('countdown');
     const savedEndTime = localStorage.getItem('timerEndTime');
-    const savedAction = localStorage.getItem('timerAction'); // Agregar la acción guardada
+    const savedAction = localStorage.getItem('timerAction');
 
-    // Función para enviar notificaciones
     function enviarNotificacion(titulo, cuerpo) {
       if (Notification.permission === 'granted') {
         navigator.serviceWorker.ready.then(registration => {
-          console.log('Enviando notificación');
+          console.log('Enviando notificación:', titulo, cuerpo);
           registration.showNotification(titulo, {
             body: cuerpo,
             icon: '/AquaMaster/icon-192x192.png',
@@ -539,7 +523,6 @@
       updateCountdown();
     }
 
-    // Solicitar permiso para notificaciones
     if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
       Notification.requestPermission().then(permission => {
         if (permission === 'granted') {
