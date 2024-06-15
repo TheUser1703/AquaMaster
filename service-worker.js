@@ -28,7 +28,7 @@ self.addEventListener('fetch', event => {
 
 // Manejo de eventos push para notificaciones
 self.addEventListener('push', function(event) {
-  const data = event.data ? event.data.json() : {};
+  const data = event.data.json();
   const options = {
     body: data.body || 'Notificación sin cuerpo',
     icon: '/AquaMaster/icon-192x192.png', // Ruta a tu icono de notificación
@@ -47,3 +47,4 @@ self.addEventListener('notificationclick', function(event) {
     clients.openWindow('/AquaMaster/')
   );
 });
+
