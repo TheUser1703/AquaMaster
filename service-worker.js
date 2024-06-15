@@ -9,15 +9,18 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', event => {
+  console.log('[Service Worker] Instalando Service Worker...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
+        console.log('[Service Worker] Cache abierta');
         return cache.addAll(urlsToCache);
       })
   );
 });
 
 self.addEventListener('fetch', event => {
+  console.log('[Service Worker] Fetch', event.request.url);
   event.respondWith(
     caches.match(event.request)
       .then(response => {
@@ -26,13 +29,13 @@ self.addEventListener('fetch', event => {
   );
 });
 
-// Manejo de eventos push para notificaciones
-self.addEventListener('push', function(event) {
-  const data = event.data.json();
+self.addEventListener('push', event => {
+  console.log('[Service Worker] Push recibido');
+  const data = event.data ? event.data.json() : { title: 'AquaMaster', body: 'Notificación' };
   const options = {
     body: data.body || 'Notificación sin cuerpo',
-    icon: '/AquaMaster/icon-192x192.png', // Ruta a tu icono de notificación
-    badge: '/AquaMaster/icon-192x192.png' // Ruta a tu insignia de notificación
+    icon: '/AquaMaster/icon-192x192.png',
+    badge: '/AquaMaster/icon-192x192.png'
   };
 
   event.waitUntil(
@@ -40,9 +43,9 @@ self.addEventListener('push', function(event) {
   );
 });
 
-self.addEventListener('notificationclick', function(event) {
+self.addEventListener('notificationclick', event => {
+  console.log('[Service Worker] Notification click recibido');
   event.notification.close();
-
   event.waitUntil(
     clients.openWindow('/AquaMaster/')
   );
