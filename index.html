@@ -234,34 +234,56 @@
   </div>
 
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/AquaMaster/service-worker.js')
-          .then(registration => {
-            console.log('Service Worker registrado con éxito:', registration);
+    let socket;
 
-            // Solicitar permisos para las notificaciones push
-            if ('Notification' in window) {
-              if (Notification.permission === 'default') {
-                Notification.requestPermission().then(function(permission) {
-                  if (permission === 'granted') {
-                    console.log('Permiso de notificación concedido');
-                  }
-                });
-              } else if (Notification.permission === 'granted') {
-                console.log('Permiso de notificación ya concedido');
-              }
-            } else {
-              console.warn('API de Notificaciones no disponible en este navegador.');
-            }
-          })
-          .catch(error => {
-            console.error('Error al registrar el Service Worker:', error);
-          });
+    // Función para inicializar el WebSocket
+    function initWebSocket() {
+      socket = new WebSocket('wss://localhost:8080'); // Asegúrate de que la URL sea correcta
+
+      socket.addEventListener('open', () => {
+        console.log('Conectado al servidor');
       });
-    } else {
-      console.warn('Service Workers no son soportados en este navegador.');
+
+      socket.addEventListener('message', event => {
+        const data = JSON.parse(event.data);
+        console.log('Mensaje del servidor:', data);
+      });
+
+      socket.addEventListener('close', () => {
+        console.log('WebSocket cerrado, reintentando en 3 segundos...');
+        setTimeout(initWebSocket, 3000); // Reintentar la conexión después de 3 segundos
+      });
+
+      socket.addEventListener('error', error => {
+        console.error('Error en el WebSocket:', error);
+      });
     }
+
+    // Función para enviar comandos
+    function enviarComando(comando) {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify(comando));
+      } else {
+        console.error('WebSocket no está abierto. No se puede enviar el comando.');
+      }
+    }
+
+    // Función para enviar comandos con reintento
+    function enviarComandoConReintento(comando, intentos = 5) {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify(comando));
+      } else if (intentos > 0) {
+        console.log('WebSocket no está abierto. Reintentando en 1 segundo...');
+        setTimeout(() => {
+          enviarComandoConReintento(comando, intentos - 1);
+        }, 1000); // Reintentar después de 1 segundo
+      } else {
+        console.error('No se pudo enviar el comando después de varios intentos.');
+      }
+    }
+
+    // Inicializa el WebSocket cuando se carga la página
+    window.addEventListener('load', initWebSocket);
 
     // Función para enviar notificaciones
     function enviarNotificacion(titulo, cuerpo) {
@@ -306,26 +328,6 @@
       }
     });
 
-    const socket = new WebSocket('ws://localhost:8080'); // Actualiza con la URL de tu servidor WebSocket
-
-    socket.addEventListener('open', () => {
-      console.log('Conectado al servidor');
-    });
-
-    function enviarComando(comando) {
-      if (socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify(comando));
-      } else {
-        console.error('WebSocket no está abierto. No se puede enviar el comando.');
-      }
-    }
-
-    socket.addEventListener('message', event => {
-      const data = JSON.parse(event.data);
-      console.log('Mensaje del servidor:', data);
-    });
-
-    // Gestión de Bombas
     const addPumpButton = document.getElementById('add-pump');
     const editPumpButton = document.getElementById('edit-pump');
     const pumpContainer = document.getElementById('pump-container');
