@@ -440,6 +440,8 @@
     function enviarNotificacion(titulo, cuerpo) {
       if (Notification.permission === 'granted') {
         new Notification(titulo, { body: cuerpo });
+      } else {
+        console.warn('No se pueden enviar notificaciones, permiso no concedido.');
       }
     }
 
@@ -485,10 +487,13 @@
           enviarNotificacion('AquaMaster', 'Notificaciones activadas.');
         }
       });
+    } else if (Notification.permission === 'granted') {
+      enviarNotificacion('AquaMaster', 'Notificaciones activadas.');
     }
   </script>
 </body>
 </html>
+
 
 
 
