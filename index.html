@@ -9,6 +9,7 @@
   <link rel="icon" type="image/png" sizes="512x512" href="/AquaMaster/icon-512x512.png">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.2.8/mqtt.min.js"></script> <!-- Añadido -->
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -263,26 +264,34 @@
       }
     });
 
-    const socket = new WebSocket('ws://localhost:8080'); // Actualiza con la URL de tu servidor WebSocket
+    const clientId = `iphoneaqua-${Math.random().toString(16).substr(2, 8)}`;
+    const options = {
+      clientId,
+      username: 'aqua',
+      password: '1z3q7y4e8j9d0k6f3c2b7a1d8d5h8s9g'
+    };
+    const mqttClient = mqtt.connect('ws://192.168.1.65:1883', options);
 
-    socket.addEventListener('open', () => {
-      console.log('Conectado al servidor');
+    mqttClient.on('connect', () => {
+      console.log('Conectado al servidor MQTT');
     });
 
-    function enviarComando(comando) {
-      if (socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify(comando));
-      } else {
-        console.error('WebSocket no está abierto. No se puede enviar el comando.');
-      }
+    mqttClient.on('error', (err) => {
+      console.error('Error al conectar al servidor MQTT:', err);
+    });
+
+    function enviarComandoMQTT(comando, deviceName, switchState) {
+      const topic = `${clientId}/${deviceName}`;
+      const message = `${switchState}`;
+      mqttClient.publish(topic, message, (err) => {
+        if (err) {
+          console.error('Error al publicar mensaje MQTT:', err);
+        } else {
+          console.log(`Mensaje publicado en ${topic}: ${message}`);
+        }
+      });
     }
 
-    socket.addEventListener('message', event => {
-      const data = JSON.parse(event.data);
-      console.log('Mensaje del servidor:', data);
-    });
-
-    // Gestión de Bombas
     const addPumpButton = document.getElementById('add-pump');
     const editPumpButton = document.getElementById('edit-pump');
     const pumpContainer = document.getElementById('pump-container');
@@ -326,7 +335,7 @@
 
           const switchInput = pumpElement.querySelector('.switch input');
           switchInput.addEventListener('change', () => {
-            enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: pump.id });
+            enviarComandoMQTT({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: pump.id }, pump.name, switchInput.checked ? 'on' : 'off');
             savePumpsToLocalStorage();
           });
         });
@@ -357,7 +366,7 @@
 
       const switchInput = pumpElement.querySelector('.switch input');
       switchInput.addEventListener('change', () => {
-        enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: pumpId });
+        enviarComandoMQTT({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: pumpId }, `Bomba ${pumpNameCounter}`, switchInput.checked ? 'on' : 'off');
         savePumpsToLocalStorage();
       });
 
@@ -466,7 +475,7 @@
           // Realizar la acción almacenada cuando el temporizador termine
           document.querySelectorAll('.switch input').forEach(switchInput => {
             switchInput.checked = savedAction === 'turnOn';
-            enviarComando({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: switchInput.closest('.pump').id });
+            enviarComandoMQTT({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: switchInput.closest('.pump').id }, switchInput.closest('.pump').querySelector('.pump-name').textContent, switchInput.checked ? 'on' : 'off');
           });
           savePumpsToLocalStorage();
           
@@ -493,6 +502,7 @@
   </script>
 </body>
 </html>
+
 
 
 
