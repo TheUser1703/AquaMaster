@@ -36,6 +36,27 @@
       padding: 10px;
       border-radius: 50%;
     }
+    .status-indicators {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    .dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+    }
+    .dot.connection {
+      background-color: red;
+    }
+    .dot.sending {
+      background-color: blue;
+    }
+    .dot.receiving {
+      background-color: yellow;
+    }
     h1 {
       font-size: 2.5em;
       margin-bottom: 20px;
@@ -199,6 +220,11 @@
   <h1>AquaMaster</h1>
 
   <i id="toggle-theme" class="fas fa-moon toggle-theme"></i>
+  <div class="status-indicators">
+    <div id="connection-dot" class="dot connection"></div>
+    <div id="sending-dot" class="dot sending"></div>
+    <div id="receiving-dot" class="dot receiving"></div>
+  </div>
 
   <div class="control-container">
     <button id="add-pump" class="button">Añadir Bomba</button>
@@ -263,6 +289,7 @@
         localStorage.setItem('theme', 'light');
       }
     });
+
     const clientId = 'iphoneaqua';
     const options = {
       clientId,
@@ -271,12 +298,26 @@
     };
     const mqttClient = mqtt.connect('ws://192.168.1.65:9001', options);
 
+    const connectionDot = document.getElementById('connection-dot');
+    const sendingDot = document.getElementById('sending-dot');
+    const receivingDot = document.getElementById('receiving-dot');
+
     mqttClient.on('connect', () => {
       console.log('Conectado al servidor MQTT');
+      connectionDot.style.backgroundColor = 'green';
     });
 
     mqttClient.on('error', (err) => {
       console.error('Error al conectar al servidor MQTT:', err);
+      connectionDot.style.backgroundColor = 'red';
+    });
+
+    mqttClient.on('message', (topic, message) => {
+      console.log(`Mensaje recibido en ${topic}: ${message.toString()}`);
+      receivingDot.style.backgroundColor = 'teal';
+      setTimeout(() => {
+        receivingDot.style.backgroundColor = 'yellow';
+      }, 500);
     });
 
     function enviarComandoMQTT(deviceName, switchState) {
@@ -287,6 +328,10 @@
           console.error('Error al publicar mensaje MQTT:', err);
         } else {
           console.log(`Mensaje publicado en ${topic}: ${message}`);
+          sendingDot.style.backgroundColor = 'orange';
+          setTimeout(() => {
+            sendingDot.style.backgroundColor = 'blue';
+          }, 500);
         }
       });
     }
