@@ -263,14 +263,13 @@
         localStorage.setItem('theme', 'light');
       }
     });
-
-    const clientId = `iphoneaqua-${Math.random().toString(16).substr(2, 8)}`;
+    const clientId = 'iphoneaqua';
     const options = {
       clientId,
       username: 'aqua',
       password: '1z3q7y4e8j9d0k6f3c2b7a1d8d5h8s9g'
     };
-    const mqttClient = mqtt.connect('ws://192.168.1.65:1883', options);
+    const mqttClient = mqtt.connect('ws://192.168.1.65:9001', options);
 
     mqttClient.on('connect', () => {
       console.log('Conectado al servidor MQTT');
@@ -280,7 +279,7 @@
       console.error('Error al conectar al servidor MQTT:', err);
     });
 
-    function enviarComandoMQTT(comando, deviceName, switchState) {
+    function enviarComandoMQTT(deviceName, switchState) {
       const topic = `${clientId}/${deviceName}`;
       const message = `${switchState}`;
       mqttClient.publish(topic, message, (err) => {
@@ -335,7 +334,7 @@
 
           const switchInput = pumpElement.querySelector('.switch input');
           switchInput.addEventListener('change', () => {
-            enviarComandoMQTT({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: pump.id }, pump.name, switchInput.checked ? 'on' : 'off');
+            enviarComandoMQTT(pump.name, switchInput.checked ? 'on' : 'off');
             savePumpsToLocalStorage();
           });
         });
@@ -366,7 +365,7 @@
 
       const switchInput = pumpElement.querySelector('.switch input');
       switchInput.addEventListener('change', () => {
-        enviarComandoMQTT({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: pumpId }, `Bomba ${pumpNameCounter}`, switchInput.checked ? 'on' : 'off');
+        enviarComandoMQTT(`Bomba ${pumpNameCounter}`, switchInput.checked ? 'on' : 'off');
         savePumpsToLocalStorage();
       });
 
@@ -475,7 +474,7 @@
           // Realizar la acción almacenada cuando el temporizador termine
           document.querySelectorAll('.switch input').forEach(switchInput => {
             switchInput.checked = savedAction === 'turnOn';
-            enviarComandoMQTT({ action: switchInput.checked ? 'turnOn' : 'turnOff', device: switchInput.closest('.pump').id }, switchInput.closest('.pump').querySelector('.pump-name').textContent, switchInput.checked ? 'on' : 'off');
+            enviarComandoMQTT(switchInput.closest('.pump').querySelector('.pump-name').textContent, switchInput.checked ? 'on' : 'off');
           });
           savePumpsToLocalStorage();
           
@@ -502,6 +501,7 @@
   </script>
 </body>
 </html>
+
 
 
 
