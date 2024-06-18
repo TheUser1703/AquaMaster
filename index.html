@@ -192,19 +192,35 @@
       font-size: 24px;
       margin-top: 20px;
     }
-    
-    canvas {
+
+    /* Wave Animation */
+    .wave {
       position: fixed;
-      top: 0;
+      bottom: 0;
       left: 0;
       width: 100%;
       height: 100%;
       z-index: -1;
     }
+
+    .wave path {
+      animation: waveAnimation 4s infinite linear;
+    }
+
+    @keyframes waveAnimation {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-1600px);
+      }
+    }
   </style>
 </head>
 <body class="light-mode">
-  <canvas id="backgroundCanvas"></canvas>
+  <svg class="wave" viewBox="0 0 1200 200">
+    <path d="M0,0 C600,200 1200,0 1800,200 L1800,200 L0,200 Z" fill="#007bff" />
+  </svg>
 
   <h1>AquaMaster</h1>
 
@@ -243,67 +259,6 @@
   <div>
     <button id="test-notification" class="button">Enviar Notificación de Prueba</button>
   </div>
-
-  <script>
-    const canvas = document.getElementById('backgroundCanvas');
-    const ctx = canvas.getContext('2d');
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const particlesArray = [];
-    const numberOfParticles = 100;
-
-    class Particle {
-      constructor(x, y, size, speedX, speedY, color) {
-        this.x = x;
-        this.y = y;
-        this.size = size;
-        this.speedX = speedX;
-        this.speedY = speedY;
-        this.color = color;
-      }
-
-      update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-
-        if (this.size > 0.2) this.size -= 0.1;
-      }
-
-      draw() {
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.closePath();
-        ctx.fill();
-      }
-    }
-
-    function init() {
-      for (let i = 0; i < numberOfParticles; i++) {
-        const size = Math.random() * 5 + 1;
-        const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height;
-        const speedX = (Math.random() * 0.4) - 0.2;
-        const speedY = (Math.random() * 0.4) - 0.2;
-        const color = 'rgba(255, 255, 255, 0.8)';
-        particlesArray.push(new Particle(x, y, size, speedX, speedY, color));
-      }
-    }
-
-    function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let i = 0; i < particlesArray.length; i++) {
-        particlesArray[i].update();
-        particlesArray[i].draw();
-      }
-      requestAnimationFrame(animate);
-    }
-
-    init();
-    animate();
-  </script>
 
   <script>
     let socket;
