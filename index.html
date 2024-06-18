@@ -15,9 +15,6 @@
       text-align: center;
       padding: 50px;
       transition: background-color 0.3s, color 0.3s;
-      margin: 0;
-      overflow-x: hidden;
-      background: #0a74da; /* Color de fondo azul */
     }
     .light-mode {
       background-color: #f0f4f8;
@@ -41,11 +38,9 @@
     h1 {
       font-size: 2.5em;
       margin-bottom: 20px;
-      color: white;
     }
     p {
       font-size: 18px;
-      color: white;
     }
     .button {
       background-color: #007bff;
@@ -197,45 +192,9 @@
       font-size: 24px;
       margin-top: 20px;
     }
-
-    /* Wave Animation */
-    .wave {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 200px;
-      z-index: -1;
-    }
-
-    .wave1 {
-      animation: waveAnimation 4s infinite linear;
-      opacity: 0.6;
-    }
-
-    .wave2 {
-      animation: waveAnimation 6s infinite linear;
-      opacity: 0.4;
-    }
-
-    @keyframes waveAnimation {
-      0% {
-        transform: translateX(0);
-      }
-      100% {
-        transform: translateX(-1600px);
-      }
-    }
   </style>
 </head>
 <body class="light-mode">
-  <svg class="wave wave1" viewBox="0 0 1200 200">
-    <path d="M0,0 C600,200 1200,0 1800,200 L1800,200 L0,200 Z" fill="#fff" />
-  </svg>
-  <svg class="wave wave2" viewBox="0 0 1200 200">
-    <path d="M0,0 C600,200 1200,0 1800,200 L1800,200 L0,200 Z" fill="#fff" />
-  </svg>
-
   <h1>AquaMaster</h1>
 
   <i id="toggle-theme" class="fas fa-moon toggle-theme"></i>
@@ -269,83 +228,18 @@
     </button>
   </div>
 
-  <!-- Botón para enviar una notificación de prueba -->
-  <div>
-    <button id="test-notification" class="button">Enviar Notificación de Prueba</button>
-  </div>
-
   <script>
-    let socket;
-
-    // Función para inicializar el WebSocket
-    function initWebSocket() {
-      socket = new WebSocket('wss://localhost:8080'); // Asegúrate de que la URL sea correcta
-
-      socket.addEventListener('open', () => {
-        console.log('Conectado al servidor');
-      });
-
-      socket.addEventListener('message', event => {
-        const data = JSON.parse(event.data);
-        console.log('Mensaje del servidor:', data);
-      });
-
-      socket.addEventListener('close', () => {
-        console.log('WebSocket cerrado, reintentando en 3 segundos...');
-        setTimeout(initWebSocket, 3000); // Reintentar la conexión después de 3 segundos
-      });
-
-      socket.addEventListener('error', error => {
-        console.error('Error en el WebSocket:', error);
-      });
-    }
-
-    // Función para enviar comandos
-    function enviarComando(comando) {
-      if (socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify(comando));
-      } else {
-        console.error('WebSocket no está abierto. No se puede enviar el comando.');
-      }
-    }
-
-    // Función para enviar comandos con reintento
-    function enviarComandoConReintento(comando, intentos = 5) {
-      if (socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify(comando));
-      } else if (intentos > 0) {
-        console.log('WebSocket no está abierto. Reintentando en 1 segundo...');
-        setTimeout(() => {
-          enviarComandoConReintento(comando, intentos - 1);
-        }, 1000); // Reintentar después de 1 segundo
-      } else {
-        console.error('No se pudo enviar el comando después de varios intentos.');
-      }
-    }
-
-    // Inicializa el WebSocket cuando se carga la página
-    window.addEventListener('load', initWebSocket);
-
-    // Función para enviar notificaciones
-    function enviarNotificacion(titulo, cuerpo) {
-      if ('Notification' in window && Notification.permission === 'granted') {
-        navigator.serviceWorker.ready.then(registration => {
-          console.log('Enviando notificación:', titulo, cuerpo);
-          registration.showNotification(titulo, {
-            body: cuerpo,
-            icon: '/AquaMaster/icon-192x192.png',
-            badge: '/AquaMaster/icon-192x192.png'
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/AquaMaster/service-worker.js')
+          .then(registration => {
+            console.log('Service Worker registrado con éxito:', registration);
+          })
+          .catch(error => {
+            console.error('Error al registrar el Service Worker:', error);
           });
-        });
-      } else {
-        console.warn('No se pueden enviar notificaciones, permiso no concedido o API no soportada.');
-      }
+      });
     }
-
-    // Botón para enviar una notificación de prueba
-    document.getElementById('test-notification').addEventListener('click', () => {
-      enviarNotificacion('Prueba de Notificación', 'Esta es una notificación de prueba.');
-    });
 
     // Modo Oscuro y Claro
     const toggleThemeButton = document.getElementById('toggle-theme');
@@ -369,6 +263,26 @@
       }
     });
 
+    const socket = new WebSocket('ws://localhost:8080'); // Actualiza con la URL de tu servidor WebSocket
+
+    socket.addEventListener('open', () => {
+      console.log('Conectado al servidor');
+    });
+
+    function enviarComando(comando) {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify(comando));
+      } else {
+        console.error('WebSocket no está abierto. No se puede enviar el comando.');
+      }
+    }
+
+    socket.addEventListener('message', event => {
+      const data = JSON.parse(event.data);
+      console.log('Mensaje del servidor:', data);
+    });
+
+    // Gestión de Bombas
     const addPumpButton = document.getElementById('add-pump');
     const editPumpButton = document.getElementById('edit-pump');
     const pumpContainer = document.getElementById('pump-container');
@@ -520,20 +434,14 @@
     // Mostrar cuenta regresiva
     const countdownElement = document.getElementById('countdown');
     const savedEndTime = localStorage.getItem('timerEndTime');
-    const savedAction = localStorage.getItem('timerAction');
+    const savedAction = localStorage.getItem('timerAction'); // Agregar la acción guardada
 
+    // Función para enviar notificaciones
     function enviarNotificacion(titulo, cuerpo) {
-      if ('Notification' in window && Notification.permission === 'granted') {
-        navigator.serviceWorker.ready.then(registration => {
-          console.log('Enviando notificación:', titulo, cuerpo);
-          registration.showNotification(titulo, {
-            body: cuerpo,
-            icon: '/AquaMaster/icon-192x192.png',
-            badge: '/AquaMaster/icon-192x192.png'
-          });
-        });
+      if (Notification.permission === 'granted') {
+        new Notification(titulo, { body: cuerpo });
       } else {
-        console.warn('No se pueden enviar notificaciones, permiso no concedido o API no soportada.');
+        console.warn('No se pueden enviar notificaciones, permiso no concedido.');
       }
     }
 
@@ -572,18 +480,15 @@
       updateCountdown();
     }
 
-    if ('Notification' in window) {
-      if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-        Notification.requestPermission().then(permission => {
-          if (permission === 'granted') {
-            enviarNotificacion('AquaMaster', 'Notificaciones activadas.');
-          }
-        });
-      } else if (Notification.permission === 'granted') {
-        enviarNotificacion('AquaMaster', 'Notificaciones activadas.');
-      }
-    } else {
-      console.warn('API de Notificaciones no disponible en este navegador.');
+    // Solicitar permiso para notificaciones
+    if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          enviarNotificacion('AquaMaster', 'Notificaciones activadas.');
+        }
+      });
+    } else if (Notification.permission === 'granted') {
+      enviarNotificacion('AquaMaster', 'Notificaciones activadas.');
     }
   </script>
 </body>
